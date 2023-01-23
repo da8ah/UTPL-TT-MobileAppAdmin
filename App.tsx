@@ -1,15 +1,20 @@
-import React from 'react';
-import * as eva from '@eva-design/eva';
-import { ApplicationProvider, Layout, Text } from '@ui-kitten/components';
-
-const HomeScreen = () => (
-  <Layout style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-    <Text category='h1'>HOME</Text>
-  </Layout>
-);
+import React from "react";
+import { StatusBar } from "expo-status-bar";
+import * as eva from "@eva-design/eva";
+import { EvaIconsPack } from "@ui-kitten/eva-icons";
+import { ApplicationProvider, Icon, IconRegistry, Text } from "@ui-kitten/components";
+import MainFrameScreen from "./src/layout/MainFrameScreen";
+import NavContainer from "./src/layout/NavContainer";
+// import AppNavigator from './src/layout/AppNavigator';
 
 export default () => (
-  <ApplicationProvider {...eva} theme={eva.light}>
-    <HomeScreen />
-  </ApplicationProvider>
+	<>
+		<IconRegistry icons={EvaIconsPack} />
+		<ApplicationProvider {...eva} theme={eva.light}>
+			<MainFrameScreen>
+				<NavContainer />
+			</MainFrameScreen>
+			<StatusBar style="auto" />
+		</ApplicationProvider>
+	</>
 );
