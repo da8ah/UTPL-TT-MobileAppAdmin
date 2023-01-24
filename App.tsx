@@ -6,6 +6,10 @@ import { ApplicationProvider, Icon, IconRegistry, Text } from "@ui-kitten/compon
 import MainFrameScreen from "./src/layout/MainFrameScreen";
 import NavContainer from "./src/layout/NavContainer";
 // import AppNavigator from './src/layout/AppNavigator';
+// import * as SplashScreen from "expo-splash-screen";
+
+// SplashScreen.preventAutoHideAsync();
+// setTimeout(SplashScreen.hideAsync, 5000);
 
 export default () => (
 	<>
