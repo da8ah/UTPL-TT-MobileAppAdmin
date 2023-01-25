@@ -1,4 +1,5 @@
 import StockBook from "../../entities/StockBook";
+import { BookConverter, IStockBook } from "../../entities/utils";
 import IStrategy from "./IStrategy";
 
 export default class PersistenciaDeLibros implements IStrategy {
@@ -30,10 +31,10 @@ export default class PersistenciaDeLibros implements IStrategy {
 		if (!this.apiURL) return null;
 
 		try {
-			let data: StockBook[] = [];
-			data = await fetch(`${this.apiURL}/books`)
+			let data: StockBook[] = await fetch(`${this.apiURL}/books`)
 				.then((res) => res.json())
-				.then((data) => data.map((item: JSON) => Object.assign(StockBook.prototype, item) as StockBook));
+				.then((data) => data.map((item: IStockBook) => BookConverter.jsonToBook(item)));
+
 			return data;
 		} catch (error) {
 			console.error(error);

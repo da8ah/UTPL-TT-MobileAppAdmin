@@ -6,7 +6,7 @@ const StockBookCardHeader = (props: { isVisible?: boolean; isInOffer?: boolean; 
 	return (
 		<Layout style={[styles.common, styles.cardHeader]}>
 			{/* <Layout style={{ marginLeft: 1 }}> */}
-			{props.isVisible ? <Icon name="eye" fill="darkgray" height="25" width="25" /> : <Icon name="eye-off" fill="darkgray" height="25" width="25" />}
+			{props.isVisible ? <Icon name="eye" fill="black" height="30" width="30" /> : <Icon name="eye-off" fill="darkgray" height="25" width="25" />}
 			{/* </Layout> */}
 			<Text style={{ color: "red", fontStyle: "italic" }}>{props.isInOffer ? `-${props.discountPercentage}%` : ""}</Text>
 		</Layout>
@@ -18,11 +18,11 @@ const StockBookCardStatus = (props: { isRecommended?: boolean; isBestSeller?: bo
 		<Layout style={styles.cardStatus}>
 			<Layout style={styles.icons}>
 				<Icon name="checkmark-circle-2" fill={props.isRecommended ? "darkgray" : "darkgreen"} height="30" width="30" />
-				<Icon name="star" fill={props.isBestSeller ? "darkgray" : "darkyellow"} height="30" width="30" />
+				<Icon name="star" fill={props.isBestSeller ? "darkgray" : "gold"} height="30" width="30" />
 				<Icon name="clock" fill={props.isRecent ? "darkgray" : "darkred"} height="30" width="30" />
 			</Layout>
 			<Layout style={styles.imageLayout}>
-				<Image style={styles.image} source={require("../../../assets/icon.png")} />
+				<Image style={styles.image} source={require("../../../assets/bookstore.png")} />
 			</Layout>
 		</Layout>
 	);
@@ -62,8 +62,8 @@ const StockBookCardBody = (props: { title?: string; isbn?: string; author?: stri
 						{props.author}
 					</Text>
 				</ScrollView>
-				<Layout>
-					<Text adjustsFontSizeToFit={true}>{props.stock ? props.stock : "NaN"} 📦</Text>
+				<Layout style={{ backgroundColor: `${transparent}` }}>
+					<Text adjustsFontSizeToFit={true}> {props.stock ? props.stock : "NaN"} 📦</Text>
 				</Layout>
 			</Layout>
 		</Layout>
@@ -105,7 +105,7 @@ const StockBookCard: ListRenderItem<StockBook> = (info: ListRenderItemInfo<Stock
 	);
 };
 
-const bc = "transparent";
+const transparent = "transparent";
 
 const styles = StyleSheet.create({
 	common: {
@@ -115,20 +115,23 @@ const styles = StyleSheet.create({
 		textAlign: "center",
 	},
 	mainLayout: {
-		backgroundColor: "black",
+		backgroundColor: transparent,
 		width: "45%",
 		height: 300,
-		marginTop: 10,
+		margin: 10,
+	},
+	mainLayoutDisplay: {
+		display: "none",
 	},
 	cardLayout: {
-		backgroundColor: "white",
+		backgroundColor: "gainsboro",
 		width: "100%",
 		height: 250,
 		paddingVertical: 5,
-		borderRadius: 20,
+		borderRadius: 7,
 	},
 	cardHeader: {
-		backgroundColor: "black",
+		backgroundColor: transparent,
 		width: "100%",
 		height: 30,
 		paddingHorizontal: 3,
@@ -136,42 +139,34 @@ const styles = StyleSheet.create({
 		justifyContent: "space-between",
 	},
 	cardStatus: {
-		backgroundColor: "gray",
 		width: "100%",
 		height: 140,
 		flexDirection: "row",
 	},
-	icons: {
-		width: "20%",
-		justifyContent: "space-evenly",
-	},
-	imageLayout: {
-		width: "80%",
-		alignContent: "center",
-	},
+	icons: { width: "20%", justifyContent: "space-evenly" },
+	imageLayout: { width: "80%", alignContent: "center" },
 	image: {
 		maxWidth: "80%",
 		height: 140,
 		resizeMode: "contain",
 	},
 	cardBody: {
-		backgroundColor: "orange",
+		backgroundColor: transparent,
 		width: "100%",
 		height: 60,
+		paddingHorizontal: 2,
 	},
 	bodyProperties: {
-		backgroundColor: bc,
+		backgroundColor: transparent,
 		paddingHorizontal: 1,
 		flexDirection: "row",
 		justifyContent: "space-between",
 	},
 	buttonLayout: {
-		// backgroundColor: bc,
+		backgroundColor: transparent,
 		height: 50,
 	},
-	button: {
-		width: "90%",
-	},
+	button: { width: "90%" },
 });
 
 export default StockBookCard;
