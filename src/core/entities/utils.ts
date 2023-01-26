@@ -1,4 +1,7 @@
+import CardTransaction from "./CardTransaction";
+import Cart from "./Cart";
 import StockBook from "./StockBook";
+import ToBuyBook from "./ToBuyBook";
 
 export type IStockBook = {
 	isbn?: string;
@@ -235,173 +238,230 @@ export class BookConverter {
 // 	}
 // }
 
-// export class TransactionConverter {
-// 	static cardTransactionToJSON(cardTransaction: CardTransaction): JSON {
-// 		let json: any = {};
-// 		if (cardTransaction.getId() != undefined) json["id"] = cardTransaction.getId();
-// 		if (cardTransaction.getDate() != undefined) json["date"] = cardTransaction.getDate();
-// 		if (cardTransaction.getPayment() != undefined) json["payment"] = cardTransaction.getPayment();
-// 		if (cardTransaction.getChange() != undefined) json["change"] = cardTransaction.getChange();
-// 		if (cardTransaction.getCart() != undefined) json["cart"] = JSON.parse(JSON.stringify(cardTransaction.getCart()));
-// 		return json;
-// 	}
+export type IToBuyBook = {
+	isbn?: string;
+	imgRef?: string;
+	title?: string;
+	author?: string;
+	releaseDate?: string;
+	grossPricePerUnit?: number;
+	inOffer?: boolean;
+	discountPercentage?: number;
+	hasIva?: boolean;
+	cant?: number;
+};
+export type ICart = {
+	discountCalc?: number;
+	ivaCalc?: number;
+	subtotal?: number;
+	totalPrice?: number;
+	toBuyBooks?: IToBuyBook[];
+};
+export type ICardTransaction = {
+	id?: string;
+	date?: string;
+	payment?: number;
+	change?: number;
+	cart?: ICart;
+};
 
-// 	public static jsonToCardTransaction(req: Request): Client {
-// 		const { user, name, email, mobile, password, cards, transactions } = req.body;
+export class TransactionConverter {
+	public static jsonToBook(res: ICardTransaction): CardTransaction {
+		// All Attrs from body
+		const { id, date, payment, change, cart } = res;
 
-// 		const { id, date, payment, change, cart } = transactions;
+		if (cart !== undefined) {
+			const { discountCalc, ivaCalc, subtotal, totalPrice, toBuyBooks } = cart;
 
-// 		const { discountCalc, ivaCalc, subtotal, totalPrice, toBuyBooks } = cart;
+			if (toBuyBooks !== undefined) {
+				// NewStockBook with all Attrs
+				const newToBuyBooksArray = toBuyBooks.map(
+					(item: IToBuyBook) =>
+						new ToBuyBook(
+							item.isbn,
+							item.imgRef,
+							item.title,
+							item.author,
+							item.releaseDate,
+							item.grossPricePerUnit,
+							item.inOffer,
+							item.discountPercentage,
+							item.hasIva,
+							item.cant,
+						),
+				);
+				const newCart = new Cart(discountCalc, ivaCalc, subtotal, totalPrice, newToBuyBooksArray);
+				return new CardTransaction(id, date, payment, change, newCart);
+			}
+		}
+		return new CardTransaction();
+	}
+	// 	static cardTransactionToJSON(cardTransaction: CardTransaction): JSON {
+	// 		let json: any = {};
+	// 		if (cardTransaction.getId() != undefined) json["id"] = cardTransaction.getId();
+	// 		if (cardTransaction.getDate() != undefined) json["date"] = cardTransaction.getDate();
+	// 		if (cardTransaction.getPayment() != undefined) json["payment"] = cardTransaction.getPayment();
+	// 		if (cardTransaction.getChange() != undefined) json["change"] = cardTransaction.getChange();
+	// 		if (cardTransaction.getCart() != undefined) json["cart"] = JSON.parse(JSON.stringify(cardTransaction.getCart()));
+	// 		return json;
+	// 	}
 
-// 		const card = Object.assign(new Card(), cards[0]);
-// 		const books = toBuyBooks.map(
-// 			(book: any) =>
-// 				new ToBuyBook(
-// 					book.isbn,
-// 					book.imgRef,
-// 					book.title,
-// 					book.author,
-// 					book.releaseDate,
-// 					book.grossPricePerUnit,
-// 					book.inOffer,
-// 					book.discountPercentage,
-// 					book.hasIva,
-// 					book.cant,
-// 				),
-// 		);
+	// 	public static jsonToCardTransaction(req: Request): Client {
+	// 		const { user, name, email, mobile, password, cards, transactions } = req.body;
 
-// 		const newCart = new Cart(discountCalc, ivaCalc, subtotal, totalPrice, books);
+	// 		const { id, date, payment, change, cart } = transactions;
 
-// 		const transaction = new CardTransaction(id, date, payment, change, newCart);
+	// 		const { discountCalc, ivaCalc, subtotal, totalPrice, toBuyBooks } = cart;
 
-// 		const client = new Client(user, name, email, mobile, undefined);
+	// 		const card = Object.assign(new Card(), cards[0]);
+	// 		const books = toBuyBooks.map(
+	// 			(book: any) =>
+	// 				new ToBuyBook(
+	// 					book.isbn,
+	// 					book.imgRef,
+	// 					book.title,
+	// 					book.author,
+	// 					book.releaseDate,
+	// 					book.grossPricePerUnit,
+	// 					book.inOffer,
+	// 					book.discountPercentage,
+	// 					book.hasIva,
+	// 					book.cant,
+	// 				),
+	// 		);
 
-// 		client.setCards([card]);
-// 		client.setTransactions([transaction]);
+	// 		const newCart = new Cart(discountCalc, ivaCalc, subtotal, totalPrice, books);
 
-// 		return client;
-// 	}
+	// 		const transaction = new CardTransaction(id, date, payment, change, newCart);
 
-// 	public static modelToCardTransactionWithClient(cardTransactionModel: ICardTransactionModel): Client {
-// 		const books: ToBuyBook[] = cardTransactionModel.booksAcquired.map(
-// 			(book) =>
-// 				new ToBuyBook(
-// 					book.isbn,
-// 					book.imgRef,
-// 					book.title,
-// 					book.author,
-// 					book.releaseDate,
-// 					book.grossPricePerUnit,
-// 					book.inOffer,
-// 					book.discountPercentage,
-// 					book.hasIva,
-// 					book.cant,
-// 				),
-// 		);
+	// 		const client = new Client(user, name, email, mobile, undefined);
 
-// 		const cart = new Cart(
-// 			cardTransactionModel.discountCalc,
-// 			cardTransactionModel.ivaCalc,
-// 			cardTransactionModel.subtotal,
-// 			cardTransactionModel.totalPrice,
-// 			books,
-// 		);
+	// 		client.setCards([card]);
+	// 		client.setTransactions([transaction]);
 
-// 		const cardTransaction = new CardTransaction(
-// 			cardTransactionModel.id,
-// 			cardTransactionModel.date,
-// 			cardTransactionModel.payment,
-// 			cardTransactionModel.change,
-// 			cart,
-// 		);
+	// 		return client;
+	// 	}
 
-// 		const card = new Card(cardTransactionModel.card.ownerName, cardTransactionModel.card.cardNumber, undefined, cardTransactionModel.card.expiryDate);
+	// 	public static modelToCardTransactionWithClient(cardTransactionModel: ICardTransactionModel): Client {
+	// 		const books: ToBuyBook[] = cardTransactionModel.booksAcquired.map(
+	// 			(book) =>
+	// 				new ToBuyBook(
+	// 					book.isbn,
+	// 					book.imgRef,
+	// 					book.title,
+	// 					book.author,
+	// 					book.releaseDate,
+	// 					book.grossPricePerUnit,
+	// 					book.inOffer,
+	// 					book.discountPercentage,
+	// 					book.hasIva,
+	// 					book.cant,
+	// 				),
+	// 		);
 
-// 		const client = new Client(
-// 			cardTransactionModel.client.user,
-// 			cardTransactionModel.client.name,
-// 			cardTransactionModel.client.email,
-// 			cardTransactionModel.client.mobile,
-// 		);
+	// 		const cart = new Cart(
+	// 			cardTransactionModel.discountCalc,
+	// 			cardTransactionModel.ivaCalc,
+	// 			cardTransactionModel.subtotal,
+	// 			cardTransactionModel.totalPrice,
+	// 			books,
+	// 		);
 
-// 		client.setCards([card]);
-// 		client.setTransactions([cardTransaction]);
+	// 		const cardTransaction = new CardTransaction(
+	// 			cardTransactionModel.id,
+	// 			cardTransactionModel.date,
+	// 			cardTransactionModel.payment,
+	// 			cardTransactionModel.change,
+	// 			cart,
+	// 		);
 
-// 		return client;
-// 	}
+	// 		const card = new Card(cardTransactionModel.card.ownerName, cardTransactionModel.card.cardNumber, undefined, cardTransactionModel.card.expiryDate);
 
-// 	public static cardTransactionWithClientToModel(client: Client): ICardTransactionModel {
-// 		const transactions = client.getTransactions();
-// 		const cards = client.getCards();
-// 		if (transactions != undefined && cards != undefined) {
-// 			const transaction = transactions[0];
-// 			const card = cards[0];
-// 			const cart = transactions[0].getCart();
-// 			if (cart) {
-// 				const books = cart.getToBuyBooks();
-// 				return new CardTransactionModel({
-// 					id: crypto.randomUUID(),
-// 					date: transaction.getDate(),
-// 					payment: transaction.getPayment(),
-// 					change: transaction.getChange(),
-// 					card: {
-// 						ownerName: card.getOwnerName(),
-// 						cardNumber: card.getCardNumber(),
-// 						expiryDate: card.getExpiryDate(),
-// 					},
-// 					client: {
-// 						user: client.getUser(),
-// 						name: client.getName(),
-// 						email: client.getEmail(),
-// 						mobile: client.getMobile(),
-// 					},
-// 					booksAcquired: books,
-// 					discountCalc: cart.getDiscountCalc(),
-// 					ivaCalc: cart.getIvaCalc(),
-// 					subtotal: cart.getSubtotal(),
-// 					totalPrice: cart.getTotalPrice(),
-// 				});
-// 			}
-// 		}
-// 		return new CardTransactionModel();
-// 	}
+	// 		const client = new Client(
+	// 			cardTransactionModel.client.user,
+	// 			cardTransactionModel.client.name,
+	// 			cardTransactionModel.client.email,
+	// 			cardTransactionModel.client.mobile,
+	// 		);
 
-// 	public static modelToCardTransaction(cardTransactionModel: ICardTransactionModel): CardTransaction {
-// 		const books: ToBuyBook[] = cardTransactionModel.booksAcquired.map(
-// 			(book) =>
-// 				new ToBuyBook(
-// 					book.isbn,
-// 					book.imgRef,
-// 					book.title,
-// 					book.author,
-// 					book.releaseDate,
-// 					book.grossPricePerUnit,
-// 					book.inOffer,
-// 					book.discountPercentage,
-// 					book.hasIva,
-// 					book.cant,
-// 				),
-// 		);
+	// 		client.setCards([card]);
+	// 		client.setTransactions([cardTransaction]);
 
-// 		const cart = new Cart(
-// 			cardTransactionModel.discountCalc,
-// 			cardTransactionModel.ivaCalc,
-// 			cardTransactionModel.subtotal,
-// 			cardTransactionModel.totalPrice,
-// 			books,
-// 		);
+	// 		return client;
+	// }
 
-// 		const cardTransaction = new CardTransaction(
-// 			cardTransactionModel.id,
-// 			cardTransactionModel.date,
-// 			cardTransactionModel.payment,
-// 			cardTransactionModel.change,
-// 			cart,
-// 		);
+	// 	public static cardTransactionWithClientToModel(client: Client): ICardTransactionModel {
+	// 		const transactions = client.getTransactions();
+	// 		const cards = client.getCards();
+	// 		if (transactions != undefined && cards != undefined) {
+	// 			const transaction = transactions[0];
+	// 			const card = cards[0];
+	// 			const cart = transactions[0].getCart();
+	// 			if (cart) {
+	// 				const books = cart.getToBuyBooks();
+	// 				return new CardTransactionModel({
+	// 					id: crypto.randomUUID(),
+	// 					date: transaction.getDate(),
+	// 					payment: transaction.getPayment(),
+	// 					change: transaction.getChange(),
+	// 					card: {
+	// 						ownerName: card.getOwnerName(),
+	// 						cardNumber: card.getCardNumber(),
+	// 						expiryDate: card.getExpiryDate(),
+	// 					},
+	// 					client: {
+	// 						user: client.getUser(),
+	// 						name: client.getName(),
+	// 						email: client.getEmail(),
+	// 						mobile: client.getMobile(),
+	// 					},
+	// 					booksAcquired: books,
+	// 					discountCalc: cart.getDiscountCalc(),
+	// 					ivaCalc: cart.getIvaCalc(),
+	// 					subtotal: cart.getSubtotal(),
+	// 					totalPrice: cart.getTotalPrice(),
+	// 				});
+	// 			}
+	// 		}
+	// 		return new CardTransactionModel();
+	// 	}
 
-// 		return cardTransaction;
-// 	}
-// }
+	// 	public static modelToCardTransaction(cardTransactionModel: ICardTransactionModel): CardTransaction {
+	// 		const books: ToBuyBook[] = cardTransactionModel.booksAcquired.map(
+	// 			(book) =>
+	// 				new ToBuyBook(
+	// 					book.isbn,
+	// 					book.imgRef,
+	// 					book.title,
+	// 					book.author,
+	// 					book.releaseDate,
+	// 					book.grossPricePerUnit,
+	// 					book.inOffer,
+	// 					book.discountPercentage,
+	// 					book.hasIva,
+	// 					book.cant,
+	// 				),
+	// 		);
+
+	// 		const cart = new Cart(
+	// 			cardTransactionModel.discountCalc,
+	// 			cardTransactionModel.ivaCalc,
+	// 			cardTransactionModel.subtotal,
+	// 			cardTransactionModel.totalPrice,
+	// 			books,
+	// 		);
+
+	// 		const cardTransaction = new CardTransaction(
+	// 			cardTransactionModel.id,
+	// 			cardTransactionModel.date,
+	// 			cardTransactionModel.payment,
+	// 			cardTransactionModel.change,
+	// 			cart,
+	// 		);
+
+	// 		return cardTransaction;
+	// 	}
+}
 
 // export class AdminConverter {
 // 	public static adminToJSON(admin: Admin): JSON {

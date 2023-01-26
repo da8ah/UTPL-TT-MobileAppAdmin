@@ -2,7 +2,7 @@ import { Layout, List } from "@ui-kitten/components";
 import { useEffect, useState } from "react";
 import { StyleSheet } from "react-native";
 import StockBook from "../../core/entities/StockBook";
-import viMoBooks, { BooksObserver } from "../../viewmodel/ViMoBooks";
+import booksViMo, { BooksObserver } from "../../viewmodel/BooksViMo";
 import SearchBar from "./SearchBar";
 import StockBookCard from "./StockBookCard";
 
@@ -25,16 +25,16 @@ const BooksLayout = () => {
 	const queryDataFromServer = () => {
 		setRefreshing(true);
 		setTimeout(async () => {
-			await viMoBooks.getDataFromServer();
-			setBooks(viMoBooks.getBooksStored());
+			await booksViMo.getDataFromServer();
+			setBooks(booksViMo.getBooksStored());
 			setRefreshing(false);
 		}, 2000);
 	};
 
 	useEffect(() => {
 		queryDataFromServer();
-		viMoBooks.attach(displayDataRetrieved);
-		return () => viMoBooks.detach();
+		booksViMo.attach(displayDataRetrieved);
+		return () => booksViMo.detach();
 	}, []);
 
 	return (
@@ -77,7 +77,7 @@ const styles = StyleSheet.create({
 	searchBarLayout: { flex: 1, paddingVertical: 20 },
 	booksLayout: { flex: 9 },
 	mainListLayout: { flex: 1 },
-	flatListLayout: { maxWidth: "100%" },
+	flatListLayout: {},
 	columnsStyle: { alignContent: "center" },
 });
 

@@ -5,7 +5,7 @@ import GestionDeInicio from "../core/usecases/GestionDeInicio";
 
 export type BooksObserver = (books: StockBook[]) => void;
 
-class ViMoBooks {
+class BooksViMo {
 	private observer: BooksObserver | null = null;
 	private repository: AbstractRepository | null = serverDataSource;
 	private books: StockBook[] = [];
@@ -34,6 +34,6 @@ class ViMoBooks {
 	}
 }
 
-const viMoBooks = new ViMoBooks();
+const booksViMo = new BooksViMo();
 
-export default viMoBooks;
+export default booksViMo;

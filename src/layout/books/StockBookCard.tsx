@@ -70,10 +70,11 @@ const StockBookCardBody = (props: { title?: string; isbn?: string; author?: stri
 	);
 };
 
+const buttonIcon = () => <Icon name="settings" fill="white" height="15" width="15" />;
 const StockBookCardButton = () => {
 	return (
 		<Layout style={[styles.common, styles.buttonLayout]}>
-			<Button style={styles.button} size="small">
+			<Button style={styles.button} size="small" status="info" accessoryLeft={buttonIcon}>
 				EDITAR
 			</Button>
 		</Layout>

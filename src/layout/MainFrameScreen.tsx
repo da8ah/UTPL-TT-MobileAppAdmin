@@ -5,11 +5,11 @@ import { SafeAreaView, StyleSheet } from "react-native";
 const HeaderComponent = () => {
 	return (
 		<Layout style={[styles.common, styles.header]}>
-			<Text category='h3' status='primary'>
+			<Text category='h1' style={{ color: "white", fontFamily: "serif" }}>
 				BOOKSTORE
 			</Text>
-			<Text category="h5" status="primary" style={{ fontStyle: "italic", color: "white" }}>
-				Manager
+			<Text category="h5" status="primary" style={{ fontStyle: "italic" }}>
+				MANAGER
 			</Text>
 		</Layout>
 	);
@@ -42,6 +42,7 @@ const styles = StyleSheet.create({
 	},
 	header: {
 		flex: 3,
+		justifyContent: "flex-end",
 		paddingVertical: 20,
 		color: "white",
 		backgroundColor: "black",
