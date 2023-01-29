@@ -1,11 +1,8 @@
 import { BottomTabBarProps, createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import { NavigationContainer } from "@react-navigation/native";
-import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { BottomNavigation, BottomNavigationTab, Icon, Text } from "@ui-kitten/components";
-import React, { useRef } from "react";
-import { StyleSheet } from "react-native";
-import BooksScreen from "./books/BooksScreen";
-import TransactionsScreen from "./transactions/TransactionsScreen";
+import React from "react";
+import BooksScreen from "../books/BooksScreen";
+import TransactionsScreen from "../transactions/TransactionsScreen";
 
 const HomeIcon = () => <Icon name="book-open" fill="black" height="30" width="30" />;
 const HomeTitle = () => <Text style={{ color: "black", fontSize: 10 }}>Librería</Text>;
@@ -61,35 +58,20 @@ const UiKittenBottomTabNav = ({ navigation, state }: BottomTabBarProps) => {
 const Tab = createBottomTabNavigator();
 
 const BottomTabNavigator = () => (
-	<Tab.Navigator initialRouteName="Flow" tabBar={(props) => <UiKittenBottomTabNav {...props} />} screenOptions={{ headerShown: false }}>
+	<Tab.Navigator initialRouteName="Home" tabBar={(props) => <UiKittenBottomTabNav {...props} />} screenOptions={{ headerShown: false }}>
 		<Tab.Screen name="Home" component={BooksScreen} />
 		<Tab.Screen
 			name="Flow"
 			component={TransactionsScreen}
-			options={{ headerShown: true, headerTitle: "Transacciones", headerTitleAlign: "center" }}
+			options={{
+				headerShown: true,
+				headerTitle: "Transacciones",
+				headerTitleAlign: "center",
+				headerTitleContainerStyle: { justifyContent: "flex-start" },
+			}}
 		/>
 		<Tab.Screen name="User" component={BooksScreen} />
 	</Tab.Navigator>
 );
 
-const NavContainer = () => (
-	<NavigationContainer>
-		<BottomTabNavigator />
-	</NavigationContainer>
-);
-
-const styles = StyleSheet.create({
-	common: {
-		width: "100%",
-		justifyContent: "center",
-		alignItems: "center",
-		textAlign: "center",
-	},
-	footer: {
-		flex: 2,
-		color: "white",
-		backgroundColor: "black",
-	},
-});
-
-export default NavContainer;
+export default BottomTabNavigator;

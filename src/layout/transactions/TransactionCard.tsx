@@ -2,8 +2,6 @@ import { Button, Divider, Icon, Layout, Text } from "@ui-kitten/components";
 import { ListRenderItem, ListRenderItemInfo, ScrollView, StyleSheet, TouchableOpacity } from "react-native";
 import CardTransaction from "../../core/entities/CardTransaction";
 import Cart from "../../core/entities/Cart";
-import TransactionDetails from "./TransactionDetails";
-import TransactionDetailsNav from "./TransactionDetails";
 
 const TransactionCardHeader = (props: { id?: string }) => (
 	<Layout style={[styles.transparentBackground, styles.cardHeader]}>
@@ -78,13 +76,19 @@ const TransactionCardBody = (props: { discountCalc?: number; ivaCalc?: number; t
 );
 
 const buttonIcon = () => <Icon name="layers" fill="white" height="15" width="15" />;
-const TransactionCardButton = () => (
-	<Layout style={[styles.transparentBackground, styles.common, styles.buttonLayout]}>
-		<Button style={styles.button} size="small" status="info" accessoryLeft={buttonIcon} onPressOut={() => <TransactionDetails />}>
-			Abrir
-		</Button>
-	</Layout>
-);
+const TransactionCardButton = (props: { itemIndex: number }) => {
+	const buttonAction = () => {
+		console.log(props.itemIndex);
+	};
+
+	return (
+		<Layout style={[styles.transparentBackground, styles.common, styles.buttonLayout]}>
+			<Button style={styles.button} size="small" status="info" accessoryLeft={buttonIcon} onPressOut={buttonAction}>
+				Abrir
+			</Button>
+		</Layout>
+	);
+};
 
 const TransactionCard: ListRenderItem<CardTransaction> = (info: ListRenderItemInfo<CardTransaction>) => {
 	const calcCant = (cart: Cart | undefined): number => {
@@ -118,7 +122,7 @@ const TransactionCard: ListRenderItem<CardTransaction> = (info: ListRenderItemIn
 			</Layout>
 			{/* Button */}
 			<Divider />
-			<TransactionCardButton />
+			<TransactionCardButton itemIndex={info.index} />
 		</Layout>
 	);
 };

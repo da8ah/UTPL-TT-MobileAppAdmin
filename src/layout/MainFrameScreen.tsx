@@ -2,18 +2,16 @@ import { Layout, Text } from "@ui-kitten/components";
 import { ReactElement } from "react";
 import { SafeAreaView, StyleSheet } from "react-native";
 
-const HeaderComponent = () => {
-	return (
-		<Layout style={[styles.common, styles.header]}>
-			<Text category='h1' style={{ color: "white", fontFamily: "serif" }}>
-				BOOKSTORE
-			</Text>
-			<Text category="h5" status="primary" style={{ fontStyle: "italic" }}>
-				MANAGER
-			</Text>
-		</Layout>
-	);
-};
+const HeaderComponent = () => (
+	<Layout style={[styles.common, styles.header]}>
+		<Text category='h1' style={{ color: "white", fontFamily: "serif" }}>
+			BOOKSTORE
+		</Text>
+		<Text category="h5" status="primary" style={{ fontStyle: "italic" }}>
+			MANAGER
+		</Text>
+	</Layout>
+);
 
 const BodyComponent = (props: { children?: ReactElement }) => {
 	return <Layout style={styles.body}>{props.children}</Layout>;

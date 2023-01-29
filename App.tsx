@@ -1,10 +1,11 @@
-import React from "react";
-import { StatusBar } from "expo-status-bar";
+import "react-native-gesture-handler";
 import * as eva from "@eva-design/eva";
+import { ApplicationProvider, IconRegistry } from "@ui-kitten/components";
 import { EvaIconsPack } from "@ui-kitten/eva-icons";
-import { ApplicationProvider, Icon, IconRegistry, Text } from "@ui-kitten/components";
-import MainFrameScreen from "./src/layout/MainFrameScreen";
-import NavContainer from "./src/layout/NavContainer";
+import { StatusBar } from "expo-status-bar";
+import React from "react";
+import AuthNavigator from "./src/layout/nav/AuthNavigator";
+import { SafeAreaView } from "react-native";
 // import AppNavigator from './src/layout/AppNavigator';
 // import * as SplashScreen from "expo-splash-screen";
 
@@ -15,10 +16,10 @@ export default () => (
 	<>
 		<IconRegistry icons={EvaIconsPack} />
 		<ApplicationProvider {...eva} theme={eva.light}>
-			<MainFrameScreen>
-				<NavContainer />
-			</MainFrameScreen>
-			<StatusBar style="auto" />
+			<SafeAreaView style={{ flex: 1 }}>
+				<AuthNavigator />
+				<StatusBar style="auto" />
+			</SafeAreaView>
 		</ApplicationProvider>
 	</>
 );

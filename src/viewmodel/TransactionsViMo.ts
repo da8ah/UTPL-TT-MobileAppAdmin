@@ -2,7 +2,6 @@ import AbstractRepository from "../core/data/AbstractRepository";
 import serverDataSource from "../core/data/ServerDataSource";
 import CardTransaction from "../core/entities/CardTransaction";
 import GestionDeTransacciones from "../core/usecases/admin/GestionDeTransacciones";
-import GestionDeInicio from "../core/usecases/GestionDeInicio";
 
 export type TransactionsObserver = (transactions: CardTransaction[]) => void;
 
