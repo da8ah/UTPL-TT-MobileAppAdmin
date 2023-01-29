@@ -3,6 +3,7 @@ import { BottomNavigation, BottomNavigationTab, Icon, Text } from "@ui-kitten/co
 import React from "react";
 import BooksScreen from "../books/BooksScreen";
 import TransactionsScreen from "../transactions/TransactionsScreen";
+import ProfileScreen from "../user/ProfileScreen";
 
 const HomeIcon = () => <Icon name="book-open" fill="black" height="30" width="30" />;
 const HomeTitle = () => <Text style={{ color: "black", fontSize: 10 }}>Librería</Text>;
@@ -60,17 +61,8 @@ const Tab = createBottomTabNavigator();
 const BottomTabNavigator = () => (
 	<Tab.Navigator initialRouteName="Home" tabBar={(props) => <UiKittenBottomTabNav {...props} />} screenOptions={{ headerShown: false }}>
 		<Tab.Screen name="Home" component={BooksScreen} />
-		<Tab.Screen
-			name="Flow"
-			component={TransactionsScreen}
-			options={{
-				headerShown: true,
-				headerTitle: "Transacciones",
-				headerTitleAlign: "center",
-				headerTitleContainerStyle: { justifyContent: "flex-start" },
-			}}
-		/>
-		<Tab.Screen name="User" component={BooksScreen} />
+		<Tab.Screen name="Flow" component={TransactionsScreen} />
+		<Tab.Screen name="User" component={ProfileScreen} />
 	</Tab.Navigator>
 );
 

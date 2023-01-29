@@ -83,7 +83,7 @@ const TransactionCardButton = (props: { itemIndex: number }) => {
 
 	return (
 		<Layout style={[styles.transparentBackground, styles.common, styles.buttonLayout]}>
-			<Button style={styles.button} size="small" status="info" accessoryLeft={buttonIcon} onPressOut={buttonAction}>
+			<Button disabled style={styles.button} size="small" status="info" accessoryLeft={buttonIcon} onPressOut={buttonAction}>
 				Abrir
 			</Button>
 		</Layout>
@@ -181,7 +181,7 @@ const styles = StyleSheet.create({
 		height: 50,
 		alignContent: "center",
 	},
-	button: { width: "30%", borderRadius: 20 },
+	button: { width: "30%", borderRadius: 20, opacity: 0.7 },
 });
 
 export default TransactionCard;
