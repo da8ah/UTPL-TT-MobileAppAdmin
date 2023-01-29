@@ -1,6 +1,8 @@
-import { Button, ButtonGroup, Icon, Layout, Text } from "@ui-kitten/components";
+import { useNavigation } from "@react-navigation/native";
+import { Button, Icon, Layout, Text } from "@ui-kitten/components";
 import { Image, ListRenderItem, ListRenderItemInfo, ScrollView, StyleSheet } from "react-native";
 import StockBook from "../../core/entities/StockBook";
+import { StockBookScreenProps } from "../ScreenTypes";
 
 const StockBookCardHeader = (props: { isVisible?: boolean; isInOffer?: boolean; discountPercentage?: number }) => {
 	return (
@@ -70,11 +72,20 @@ const StockBookCardBody = (props: { title?: string; isbn?: string; author?: stri
 	);
 };
 
-const buttonIcon = () => <Icon name="settings" fill="white" height="15" width="15" />;
-const StockBookCardButton = () => {
+const ButtonIcon = () => <Icon name="settings" fill="white" height="15" width="15" />;
+const StockBookCardButton = (props: { itemIndex: number }) => {
+	// rome-ignore lint/suspicious/noExplicitAny: <explanation>
+	const navigation: any = useNavigation<StockBookScreenProps>();
+
 	return (
 		<Layout style={[styles.common, styles.buttonLayout]}>
-			<Button style={styles.button} size="small" status="info" accessoryLeft={buttonIcon}>
+			<Button
+				style={styles.button}
+				size="small"
+				status="info"
+				accessoryLeft={ButtonIcon}
+				onPress={() => navigation.navigate("StockBook", { bookid: props.itemIndex })}
+			>
 				EDITAR
 			</Button>
 		</Layout>
@@ -101,7 +112,7 @@ const StockBookCard: ListRenderItem<StockBook> = (info: ListRenderItemInfo<Stock
 				/>
 			</Layout>
 			{/* Button */}
-			<StockBookCardButton />
+			<StockBookCardButton itemIndex={info.index} />
 		</Layout>
 	);
 };
