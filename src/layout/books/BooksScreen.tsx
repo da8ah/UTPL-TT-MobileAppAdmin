@@ -3,8 +3,8 @@ import { useEffect, useState } from "react";
 import { StyleSheet } from "react-native";
 import StockBook from "../../core/entities/StockBook";
 import booksViMo, { BooksObserver } from "../../viewmodel/BooksViMo";
-import SearchBar from "./SearchBar";
-import StockBookCard from "./StockBookCard";
+import SearchBar from "./components/SearchBar";
+import StockBookCard from "./components/StockBookCard";
 
 const SearchBarLayout = () => {
 	return (

@@ -2,7 +2,7 @@ import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import StockBookScreen from "../books/StockBookScreen";
 import { RootStackParamList } from "../ScreenTypes";
-import MainTabsNav from "./MainTabsNav";
+import MainTabsNav from "./components/MainTabsNav";
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 

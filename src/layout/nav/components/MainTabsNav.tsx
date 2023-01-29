@@ -1,5 +1,5 @@
 import { NavigationContainer } from "@react-navigation/native";
-import MainFrameScreen from "../MainFrameScreen";
+import MainFrameScreen from "./MainFrameScreen";
 import BottomTabNavigator from "./BottomTabNav";
 
 const MainTabsNav = () => (

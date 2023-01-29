@@ -1,9 +1,9 @@
 import { BottomTabBarProps, createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { BottomNavigation, BottomNavigationTab, Icon, Text } from "@ui-kitten/components";
 import React from "react";
-import BooksScreen from "../books/BooksScreen";
-import TransactionsScreen from "../transactions/TransactionsScreen";
-import ProfileScreen from "../user/ProfileScreen";
+import BooksScreen from "../../books/BooksScreen";
+import TransactionsScreen from "../../transactions/TransactionsScreen";
+import ProfileScreen from "../../user/ProfileScreen";
 
 const HomeIcon = () => <Icon name="book-open" fill="black" height="30" width="30" />;
 const HomeTitle = () => <Text style={{ color: "black", fontSize: 10 }}>Librería</Text>;

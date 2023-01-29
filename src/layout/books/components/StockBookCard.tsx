@@ -1,8 +1,8 @@
 import { useNavigation } from "@react-navigation/native";
 import { Button, Icon, Layout, Text } from "@ui-kitten/components";
 import { Image, ListRenderItem, ListRenderItemInfo, ScrollView, StyleSheet } from "react-native";
-import StockBook from "../../core/entities/StockBook";
-import { StockBookScreenProps } from "../ScreenTypes";
+import StockBook from "../../../core/entities/StockBook";
+import { StockBookScreenProps } from "../../ScreenTypes";
 
 const StockBookCardHeader = (props: { isVisible?: boolean; isInOffer?: boolean; discountPercentage?: number }) => {
 	return (
