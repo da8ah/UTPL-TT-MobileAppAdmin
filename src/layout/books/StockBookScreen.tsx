@@ -1,19 +1,9 @@
-import {
-	Button,
-	ButtonGroup,
-	Datepicker,
-	DateService,
-	I18nConfig,
-	Icon,
-	Input,
-	Layout,
-	NativeDateService,
-	Text,
-	Toggle,
-} from "@ui-kitten/components";
-import { useState } from "react";
-import { Image, KeyboardAvoidingView, Modal, StyleSheet, TouchableOpacity } from "react-native";
+import { Button, Card, Datepicker, I18nConfig, Icon, Input, Layout, Modal, NativeDateService, Text, Toggle } from "@ui-kitten/components";
+import { useEffect, useState } from "react";
+import { Image, StyleSheet, TouchableOpacity } from "react-native";
+import { ScrollView } from "react-native-gesture-handler";
 import StockBook from "../../core/entities/StockBook";
+import stockBookViMo, { StockBookObserver } from "../../viewmodel/StockBookViMo";
 import { StockBookScreenProps } from "../ScreenTypes";
 
 const HeaderComponent = () => (
@@ -25,29 +15,11 @@ const HeaderComponent = () => (
 	</Layout>
 );
 
-const BodyComponent = (props: { book: StockBook }) => (
+const BodyComponent = (props: { book: StockBook; isEditionActive: boolean }) => (
 	<Layout style={styles.body}>
-		<BookTop
-			releaseDate={props.book.getReleaseDate()}
-			title={props.book.getTitle()}
-			isbn={props.book.getIsbn()}
-			author={props.book.getAuthor()}
-			imgRef={props.book.getImgRef()}
-			description={props.book.getDescription()}
-		/>
-		<BookMiddle
-			recommended={props.book.isRecommended()}
-			bestSeller={props.book.isBestSeller()}
-			recent={props.book.isRecent()}
-			visible={props.book.isVisible()}
-			inOffer={props.book.isInOffer()}
-			discountPercentage={props.book.getDiscountPercentage()}
-			hasIva={props.book.itHasIva()}
-			ivaPercentage={props.book.getIvaPercentage()}
-			grossPricePerUnit={props.book.getGrossPricePerUnit()}
-			stock={props.book.getStock()}
-		/>
-		<BookBottom description={props.book.getDescription()} createdDate={props.book.getCreatedDate()} />
+		<BookTop book={props.book} isEditionActive={props.isEditionActive} />
+		<BookMiddle book={props.book} isEditionActive={props.isEditionActive} />
+		<BookBottom book={props.book} isEditionActive={props.isEditionActive} />
 	</Layout>
 );
 
@@ -67,11 +39,41 @@ const i18n: I18nConfig = {
 	},
 };
 
-const localeDateService = new NativeDateService("ec", { i18n, startDayOfWeek: 1 });
+const toDate = function (date?: string) {
+	try {
+		if (date !== undefined) {
+			const dateSplitted = date?.split("/");
+			if (dateSplitted !== undefined) {
+				if (dateSplitted.length === 3) {
+					let newDate = new Date(1900, 0, 1);
+					newDate = new Date(Number.parseInt(dateSplitted[2]), Number.parseInt(dateSplitted[1]) - 1, Number.parseInt(dateSplitted[0]));
+					return newDate;
+				} else if (dateSplitted.length === 1) {
+					return new Date(Number.parseInt(dateSplitted[0]), 0, 1);
+				}
+			}
+		}
+		return new Date(1900, 0, 1);
+	} catch (error) {
+		console.log(error);
+		return new Date(1900, 0, 1);
+	}
+};
 
+const localeDateService = new NativeDateService("ec", { i18n, startDayOfWeek: 1 });
 const DatepickerIcon = () => <Icon name="calendar" fill="black" height="10" width="10" />;
-const BookTop = (props: { releaseDate?: string; title?: string; isbn?: string; author?: string; imgRef?: string; description?: string }) => {
-	const localePickerState = useDatepickerState();
+const BookTop = (props: {
+	book: StockBook;
+	isEditionActive: boolean;
+}) => {
+	const releaseDate = props.book.getReleaseDate();
+	const title = props.book.getTitle();
+	const isbn = props.book.getIsbn();
+	const author = props.book.getAuthor();
+
+	const dateParsed = toDate(releaseDate);
+	const localePickerState = useDatepickerState(dateParsed);
+
 	return (
 		<Layout style={styles.bodyTop}>
 			<Layout
@@ -86,37 +88,81 @@ const BookTop = (props: { releaseDate?: string; title?: string; isbn?: string; a
 			>
 				<Text>Fecha de Lanzamiento: </Text>
 				<Datepicker
+					disabled={!props.isEditionActive}
 					accessoryLeft={DatepickerIcon}
 					size="small"
-					// date={props.releaseDate || new Date()}
-					initialVisibleDate={new Date()}
-					min={new Date(1899, 12, 1)}
+					min={new Date(1900, 0, 1)}
 					dateService={localeDateService}
 					{...localePickerState}
+					onVisibleDateChange={(date) => {
+						props.book.setReleaseDate(
+							Intl.DateTimeFormat("es-ec", {
+								year: "numeric",
+								month: "2-digit",
+								day: "2-digit",
+							}).format(date),
+						);
+						stockBookViMo.updateDraft(props.book);
+					}}
 				/>
 			</Layout>
 			<Layout style={{ flexDirection: "row" }}>
 				<Layout style={styles.topLeftPanel}>
-					<Image style={styles.image} source={props.imgRef || require("../../../assets/bookstore.png")} />
+					<Image style={styles.image} source={require("../../../assets/bookstore.png")} />
 				</Layout>
 				<Layout style={[styles.common, styles.topRightPanel]}>
 					<Layout style={styles.inputLayout}>
 						<Layout style={styles.inputTitle}>
 							<Text adjustsFontSizeToFit>Título</Text>
 						</Layout>
-						<Input value={props.title} selectionColor='black' style={styles.input} />
+						<ScrollView
+							horizontal
+							alwaysBounceHorizontal
+							showsVerticalScrollIndicator={false}
+							fadingEdgeLength={50}
+							contentContainerStyle={{ width: `${title?.length !== undefined && title?.length < 30 ? "100%" : "auto"}` }}
+						>
+							<Input
+								disabled={!props.isEditionActive}
+								value={title}
+								selectionColor='black'
+								style={styles.input}
+								onChangeText={(input) => {
+									props.book.setTitle(props.book.getTitle() + input);
+									console.log(props.book.getTitle());
+
+									stockBookViMo.updateDraft(props.book);
+								}}
+							/>
+						</ScrollView>
 					</Layout>
 					<Layout style={styles.inputLayout}>
 						<Layout style={styles.inputTitle}>
 							<Text adjustsFontSizeToFit>ISBN</Text>
 						</Layout>
-						<Input value={props.isbn} selectionColor='black' style={styles.input} />
+						<ScrollView
+							horizontal
+							alwaysBounceHorizontal
+							showsVerticalScrollIndicator={false}
+							fadingEdgeLength={50}
+							contentContainerStyle={{ width: `${isbn?.length !== undefined && isbn?.length < 30 ? "100%" : "auto"}` }}
+						>
+							<Input disabled={!props.isEditionActive} value={isbn} selectionColor='black' style={styles.input} />
+						</ScrollView>
 					</Layout>
 					<Layout style={styles.inputLayout}>
 						<Layout style={styles.inputTitle}>
 							<Text adjustsFontSizeToFit>Autor</Text>
 						</Layout>
-						<Input value={props.author} selectionColor='black' style={styles.input} />
+						<ScrollView
+							horizontal
+							alwaysBounceHorizontal
+							showsVerticalScrollIndicator={false}
+							fadingEdgeLength={50}
+							contentContainerStyle={{ width: `${author?.length !== undefined && author?.length < 30 ? "100%" : "auto"}` }}
+						>
+							<Input disabled={!props.isEditionActive} value={author} selectionColor='black' style={styles.input} />
+						</ScrollView>
 					</Layout>
 				</Layout>
 			</Layout>
@@ -125,113 +171,234 @@ const BookTop = (props: { releaseDate?: string; title?: string; isbn?: string; a
 };
 
 const BookMiddle = (props: {
-	recommended?: boolean;
-	bestSeller?: boolean;
-	recent?: boolean;
-	visible?: boolean;
-	inOffer?: boolean;
-	discountPercentage?: number;
-	hasIva?: boolean;
-	ivaPercentage?: number;
-	grossPricePerUnit?: number;
-	stock?: number;
-}) => (
-	<Layout style={[styles.common, styles.bodyMiddle]}>
-		<Layout
-			style={{
-				backgroundColor: "gray",
-				flexDirection: "row",
-				justifyContent: "space-between",
-				marginHorizontal: 5,
-				padding: 5,
-				borderRadius: 5,
-			}}
-		>
-			<Layout style={{ width: "10%" }}>{}</Layout>
-			<Layout style={{ width: "70%", flexDirection: "row", justifyContent: "space-around" }}>
-				<TouchableOpacity>
-					{props.recent ? <Icon name="clock" fill="darkred" height="35" width="35" /> : <Icon name="clock" fill="darkgray" height="30" width="30" />}
-				</TouchableOpacity>
-				<TouchableOpacity>
-					{props.bestSeller ? <Icon name="star" fill="gold" height="35" width="35" /> : <Icon name="star" fill="darkgray" height="30" width="30" />}
-				</TouchableOpacity>
-				<TouchableOpacity>
-					{props.recommended ? (
-						<Icon name="checkmark-circle-2" fill="darkgreen" height="35" width="35" />
-					) : (
-						<Icon name="checkmark-circle-2" fill="darkgray" height="30" width="30" />
-					)}
-				</TouchableOpacity>
+	book: StockBook;
+	isEditionActive: boolean;
+}) => {
+	const [modalVisibility, setModalVisibility] = useState(false);
+	const recommended = props.book.isRecommended();
+	const bestSeller = props.book.isBestSeller();
+	const recent = props.book.isRecent();
+	const visible = props.book.isVisible();
+	const inOffer = props.book.isInOffer();
+	const discountPercentage = props.book.getDiscountPercentage();
+	const hasIva = props.book.itHasIva();
+	const ivaPercentage = props.book.getIvaPercentage();
+	const grossPricePerUnit = props.book.getGrossPricePerUnit();
+	const stock = props.book.getStock();
+	return (
+		<Layout style={[styles.common, styles.bodyMiddle]}>
+			<Layout
+				style={{
+					flex: 2,
+					backgroundColor: "gray",
+					flexDirection: "row",
+					justifyContent: "space-between",
+					marginHorizontal: 5,
+					padding: 5,
+					borderRadius: 5,
+				}}
+			>
+				<Layout style={{ width: "10%" }}>{}</Layout>
+				<Layout style={{ width: "70%", flexDirection: "row", justifyContent: "space-evenly" }}>
+					<Layout style={{ width: "30%", alignItems: "center" }}>
+						<Text style={{ fontSize: 10 }}>Reciente</Text>
+						<TouchableOpacity disabled={!props.isEditionActive} style={{ opacity: !props.isEditionActive ? 0.7 : 1 }}>
+							{!props.isEditionActive ? (
+								<Icon name="clock-outline" fill={recent ? "darkred" : "darkgray"} height="35" width="35" />
+							) : (
+								<Icon name="clock" fill={recent ? "darkred" : "darkgray"} height="35" width="35" />
+							)}
+						</TouchableOpacity>
+					</Layout>
+					<Layout style={{ width: "30%", alignItems: "center" }}>
+						<Text style={{ fontSize: 10 }}>Más vendido</Text>
+						<TouchableOpacity disabled={!props.isEditionActive} style={{ opacity: !props.isEditionActive ? 0.7 : 1 }}>
+							{!props.isEditionActive ? (
+								<Icon name="star-outline" fill={bestSeller ? "gold" : "darkgray"} height="35" width="35" />
+							) : (
+								<Icon name="star" fill={bestSeller ? "gold" : "darkgray"} height="35" width="35" />
+							)}
+						</TouchableOpacity>
+					</Layout>
+					<Layout style={{ width: "30%", alignItems: "center" }}>
+						<Text style={{ fontSize: 10 }}>Recomendado</Text>
+						<TouchableOpacity
+							disabled={!props.isEditionActive}
+							style={{ opacity: !props.isEditionActive ? 0.7 : 1 }}
+							onPress={() => {
+								props.book.setRecommended(!recommended);
+								// console.log(props.book.isRecommended());
+								stockBookViMo.updateDraft(props.book);
+							}}
+						>
+							{!props.isEditionActive ? (
+								<Icon name="checkmark-circle-2-outline" fill={recommended ? "darkgreen" : "darkgray"} height="35" width="35" />
+							) : (
+								<Icon name="checkmark-circle-2" fill={recommended ? "darkgreen" : "darkgray"} height="35" width="35" />
+							)}
+						</TouchableOpacity>
+					</Layout>
+				</Layout>
+				<Layout style={{ width: "10%", justifyContent: "center", alignItems: "flex-end" }}>
+					<TouchableOpacity disabled={!props.isEditionActive} style={{ opacity: !props.isEditionActive ? 0.7 : 1 }}>
+						{!props.isEditionActive ? (
+							<Icon name={visible ? "eye-outline" : "eye-off-outline"} fill={visible ? "black" : "darkgray"} height="35" width="35" />
+						) : (
+							<Icon name={visible ? "eye" : "eye-off"} fill={visible ? "black" : "darkgray"} height="35" width="35" />
+						)}
+					</TouchableOpacity>
+				</Layout>
 			</Layout>
-			<Layout style={{ width: "10%", alignItems: "flex-end" }}>
-				<TouchableOpacity>
-					{props.visible ? <Icon name="eye" fill="black" height="35" width="35" /> : <Icon name="eye-off" fill="darkgray" height="35" width="35" />}
-				</TouchableOpacity>
+			<Modal visible={modalVisibility} backdropStyle={{ backgroundColor: "rgba(0, 0, 0, 0.5)" }} onBackdropPress={() => setModalVisibility(false)}>
+				<Card disabled={true}>
+					<Text>Welcome to UI Kitten 😻</Text>
+					<Button onPress={() => setModalVisibility(false)}>DISMISS</Button>
+				</Card>
+			</Modal>
+			<Layout style={{ flex: 4, flexDirection: "row" }}>
+				<Layout
+					style={{
+						backgroundColor: "black",
+						width: "70%",
+						height: "100%",
+						flexDirection: "row",
+						justifyContent: "space-around",
+						alignItems: "center",
+					}}
+				>
+					<Layout style={{ width: "30%", height: "100%", justifyContent: "space-around" }}>
+						<Toggle disabled={!props.isEditionActive} checked={inOffer} />
+						<Toggle disabled={!props.isEditionActive} checked={hasIva} />
+					</Layout>
+					<Layout style={{ backgroundColor: "red", width: "30%", height: "100%", justifyContent: "space-around" }}>
+						<Text>Descuento</Text>
+						<Text>IVA</Text>
+					</Layout>
+					<Layout style={{ width: "30%", height: "100%", justifyContent: "space-around", alignItems: "center" }}>
+						<Button disabled={!props.isEditionActive} size="tiny" onPress={() => setModalVisibility(true)}>
+							{discountPercentage}
+						</Button>
+						<Button disabled={true} size="tiny">
+							{ivaPercentage !== undefined ? ivaPercentage.toString() : "0"}
+						</Button>
+					</Layout>
+				</Layout>
+				<Layout style={{ width: "30%", justifyContent: "space-around", alignItems: "flex-end" }}>
+					<Layout style={{ flexDirection: "row" }}>
+						<Button disabled={!props.isEditionActive} size="small" onPress={() => setModalVisibility(true)}>
+							{grossPricePerUnit || ""}
+						</Button>
+						<Text style={{ textAlignVertical: "center", fontSize: 25 }}> 💲</Text>
+					</Layout>
+					<Layout style={{ flexDirection: "row" }}>
+						<Button disabled={!props.isEditionActive} size="small" onPress={() => setModalVisibility(true)}>
+							{stock || ""}
+						</Button>
+						<Text style={{ textAlignVertical: "center", fontSize: 25 }}> 📦</Text>
+					</Layout>
+				</Layout>
 			</Layout>
 		</Layout>
-		<Layout style={{ flexDirection: "row" }}>
-			<Layout style={{ width: "70%", flexDirection: "row", justifyContent: "space-around" }}>
-				<Layout style={{ width: "30%" }}>
-					<Text>Descuento</Text>
-					<Text>IVA</Text>
-				</Layout>
-				<Layout style={{ width: "30%" }}>
-					<Text>{props.discountPercentage}</Text>
-					<Text>{props.ivaPercentage}</Text>
-				</Layout>
-				<Layout style={{ width: "30%" }}>
-					<Toggle checked={props.inOffer} />
-					<Toggle checked={props.hasIva} />
-				</Layout>
-			</Layout>
-			<Layout style={{ width: "30%", justifyContent: "space-around", alignItems: "flex-end" }}>
-				<Text>{props.grossPricePerUnit || ""} 💲</Text>
-				<Text>{props.stock || ""} 📦</Text>
-			</Layout>
-		</Layout>
-	</Layout>
-);
+	);
+};
 
-const BookBottom = (props: { description?: string; createdDate?: string }) => (
-	<Layout style={[styles.common, styles.bodyBottom]}>
-		<Layout>
-			<Layout style={styles.inputTitle}>
-				<Text adjustsFontSizeToFit>Descripción</Text>
+const BookBottom = (props: { book: StockBook; isEditionActive: boolean }) => {
+	const description = props.book.getDescription();
+	const createdDate = props.book.getCreatedDate();
+	const dateSplitted = createdDate?.split("T")[0].split("-");
+
+	return (
+		<Layout style={[styles.common, styles.bodyBottom]}>
+			<Layout>
+				<Layout style={styles.inputTitle}>
+					<Text adjustsFontSizeToFit>Descripción</Text>
+				</Layout>
+				<Input
+					multiline
+					disabled={!props.isEditionActive}
+					value={description}
+					selectionColor='black'
+					textStyle={{ height: 100 }}
+					style={[
+						styles.input,
+						{
+							borderColor: "darkgrey",
+							borderWidth: 1,
+							borderBottomLeftRadius: 10,
+							borderBottomRightRadius: 10,
+						},
+					]}
+				/>
 			</Layout>
-			<Input
-				multiline
-				placeholder={props.description || "\n\n\n\n"}
-				selectionColor='black'
-				style={[
-					styles.input,
-					{
-						borderColor: "darkgrey",
-						borderWidth: 1,
-						borderBottomLeftRadius: 10,
-						borderBottomRightRadius: 10,
-					},
-				]}
-			/>
+			<Layout style={[styles.common, { flexDirection: "row", justifyContent: "space-around", alignItems: "center" }]}>
+				<Button
+					disabled={props.isEditionActive}
+					status={!props.isEditionActive ? "warning" : "basic"}
+					size="tiny"
+					accessoryLeft={EditIcon}
+					style={{ width: "25%" }}
+					onPress={() => stockBookViMo.turnOnEditor()}
+				/>
+				<Button
+					disabled={!props.isEditionActive}
+					status={!props.isEditionActive ? "basic" : "danger"}
+					size="tiny"
+					accessoryLeft={SlashIcon}
+					style={{ width: "20%" }}
+					onPress={() => stockBookViMo.deleteCurrentDraft()}
+				/>
+				<Button
+					disabled={!props.isEditionActive}
+					status={!props.isEditionActive ? "basic" : "danger"}
+					size="tiny"
+					accessoryLeft={DeleteIcon}
+					style={{ width: "20%" }}
+				/>
+				<Button
+					disabled={!props.isEditionActive}
+					status={!props.isEditionActive ? "basic" : "success"}
+					size="tiny"
+					accessoryLeft={SaveIcon}
+					style={{ width: "25%" }}
+				/>
+			</Layout>
+			<Layout>
+				<Text style={{ fontSize: 10, fontStyle: "italic", textAlign: "right" }}>{`(Fecha de creación del registro: ${Intl.DateTimeFormat("es-ec", {
+					year: "numeric",
+					month: "2-digit",
+					day: "2-digit",
+				}).format(
+					dateSplitted !== undefined
+						? new Date(Number.parseInt(dateSplitted[0]), Number.parseInt(dateSplitted[1]) - 1, Number.parseInt(dateSplitted[2]))
+						: new Date(2000, 0, 1),
+				)})`}</Text>
+			</Layout>
 		</Layout>
-		<Layout style={[styles.common, { flexDirection: "row", justifyContent: "space-around", alignItems: "center" }]}>
-			<Button status="warning" size="tiny" accessoryLeft={EditIcon} style={{ width: "30%" }} />
-			<Button status="basic" size="tiny" accessoryLeft={SlashIcon} style={{ width: "30%" }} />
-			<Button status="basic" size="tiny" accessoryLeft={SaveIcon} style={{ width: "30%" }} />
-		</Layout>
-		<Layout>
-			<Text style={{ fontSize: 10, fontStyle: "italic", textAlign: "right" }}>{`Fecha de creación del registro: ${props.createdDate}`}</Text>
-		</Layout>
-	</Layout>
-);
+	);
+};
 const EditIcon = () => <Icon name="edit" fill="white" height="30" width="30" />;
 const SlashIcon = () => <Icon name="slash" fill="white" height="30" width="30" />;
+const DeleteIcon = () => <Icon name="trash-2" fill="white" height="30" width="30" />;
 const SaveIcon = () => <Icon name="save" fill="white" height="30" width="30" />;
 
 const StockBookScreen = ({ route }: StockBookScreenProps) => {
+	const [book, setBook] = useState(stockBookViMo.getStockBookFromBooksList(route.params.bookIndex));
+	const [isEditionActive, setEditionState] = useState(false);
+
+	const updateState: StockBookObserver = (book: StockBook, isEditingActive: boolean) => {
+		setBook(book);
+		setEditionState(isEditingActive);
+	};
+
+	useEffect(() => {
+		stockBookViMo.attach(updateState);
+		return () => stockBookViMo.detach();
+	}, []);
+
 	return (
 		<Layout style={[styles.common, styles.container]}>
 			<HeaderComponent />
-			<BodyComponent book={new StockBook()} />
+			<BodyComponent book={book} isEditionActive={isEditionActive} />
 		</Layout>
 	);
 };
@@ -275,6 +442,7 @@ const styles = StyleSheet.create({
 		borderTopRightRadius: 10,
 	},
 	input: {
+		width: "100%",
 		borderRadius: 0,
 		borderWidth: 0,
 		borderBottomWidth: 2,

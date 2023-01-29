@@ -24,7 +24,7 @@ const StockBookCardStatus = (props: { isRecommended?: boolean; isBestSeller?: bo
 				<Icon name="clock" fill={props.isRecent ? "darkgray" : "darkred"} height="30" width="30" />
 			</Layout>
 			<Layout style={styles.imageLayout}>
-				<Image style={styles.image} source={require("../../../assets/bookstore.png")} />
+				<Image style={styles.image} source={require("../../../../assets/bookstore.png")} />
 			</Layout>
 		</Layout>
 	);
@@ -84,7 +84,7 @@ const StockBookCardButton = (props: { itemIndex: number }) => {
 				size="small"
 				status="info"
 				accessoryLeft={ButtonIcon}
-				onPress={() => navigation.navigate("StockBook", { bookid: props.itemIndex })}
+				onPress={() => navigation.navigate("StockBook", { bookIndex: props.itemIndex })}
 			>
 				EDITAR
 			</Button>

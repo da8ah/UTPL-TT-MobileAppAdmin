@@ -2,7 +2,6 @@ import { Button, Icon, Input, Layout, Text } from "@ui-kitten/components";
 import { TouchableWithoutFeedback } from "@ui-kitten/components/devsupport";
 import { useState } from "react";
 import { KeyboardAvoidingView, StyleSheet } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 
 const LoginScreenHeader = () => (
 	<Layout style={[styles.common, styles.header]}>
@@ -72,12 +71,10 @@ const LoginScreenBody = () => (
 );
 
 const LoginScreen = () => (
-	<SafeAreaView style={{ flex: 1 }}>
-		<Layout style={[styles.common, styles.container]}>
-			<LoginScreenHeader />
-			<LoginScreenBody />
-		</Layout>
-	</SafeAreaView>
+	<Layout style={[styles.common, styles.container]}>
+		<LoginScreenHeader />
+		<LoginScreenBody />
+	</Layout>
 );
 
 const transparent = "transparent";

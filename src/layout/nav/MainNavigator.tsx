@@ -6,7 +6,7 @@ import MainTabsNav from "./components/MainTabsNav";
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
-const StackNavModal = () => (
+const MainNavigator = () => (
 	<NavigationContainer>
 		<Stack.Navigator initialRouteName='MainTabs' screenOptions={{ headerShown: false }}>
 			<Stack.Group>
@@ -19,7 +19,7 @@ const StackNavModal = () => (
 				<Stack.Screen
 					name='StockBook'
 					component={StockBookScreen}
-					initialParams={{ bookid: 0 }}
+					initialParams={{ bookIndex: 0 }}
 					options={
 						{
 							// fullScreenGestureEnabled: true,
@@ -42,4 +42,4 @@ const StackNavModal = () => (
 	</NavigationContainer>
 );
 
-export default StackNavModal;
+export default MainNavigator;

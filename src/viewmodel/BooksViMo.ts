@@ -5,7 +5,7 @@ import GestionDeInicio from "../core/usecases/GestionDeInicio";
 
 export type BooksObserver = (books: StockBook[]) => void;
 
-class BooksViMo {
+export class BooksViMo {
 	private observer: BooksObserver | null = null;
 	private repository: AbstractRepository | null = serverDataSource;
 	private books: StockBook[] = [];
@@ -31,6 +31,10 @@ class BooksViMo {
 
 	public getBooksStored(): StockBook[] {
 		return this.books;
+	}
+
+	public getBookByIndex(index: number): StockBook {
+		return this.books[index] || new StockBook();
 	}
 }
 

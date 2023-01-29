@@ -150,6 +150,29 @@ export class BookConverter {
 	// }
 }
 
+export class Cloner {
+	public static stockBook(stockBook: StockBook) {
+		return new StockBook(
+			stockBook.getIsbn(),
+			stockBook.getImgRef(),
+			stockBook.getTitle(),
+			stockBook.getAuthor(),
+			stockBook.getReleaseDate(),
+			stockBook.getGrossPricePerUnit(),
+			stockBook.isInOffer(),
+			stockBook.getDiscountPercentage(),
+			stockBook.itHasIva(),
+			stockBook.getCreatedDate(),
+			stockBook.getDescription(),
+			stockBook.getStock(),
+			stockBook.isVisible(),
+			stockBook.isRecommended(),
+			stockBook.isBestSeller(),
+			stockBook.isRecent(),
+		);
+	}
+}
+
 // export class ClientConverter {
 // 	private static billingInfoToJSON(billingInfo: BillingInfo): JSON {
 // 		let json: any = {};
