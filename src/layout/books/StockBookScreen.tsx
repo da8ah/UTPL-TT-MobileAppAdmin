@@ -1,5 +1,18 @@
-import { Button, Card, Datepicker, I18nConfig, Icon, Input, Layout, Modal, NativeDateService, Text, Toggle } from "@ui-kitten/components";
-import { useEffect, useReducer, useState } from "react";
+import {
+	Button,
+	Card,
+	Datepicker,
+	DateService,
+	I18nConfig,
+	Icon,
+	Input,
+	Layout,
+	Modal,
+	NativeDateService,
+	Text,
+	Toggle,
+} from "@ui-kitten/components";
+import { Children, useEffect, useReducer, useState } from "react";
 import { Image, StyleSheet, TouchableOpacity } from "react-native";
 import { ScrollView } from "react-native-gesture-handler";
 import StockBook from "../../core/entities/StockBook";
@@ -25,6 +38,7 @@ const BodyComponent = (props: { book: StockBook; isEditionActive: boolean }) => 
 
 const useDatepickerState = (initialDate: Date = new Date()) => {
 	const [date, setDate] = useState<Date>(initialDate);
+	stockBookViMo.updateDraftDate(date);
 	return { date, onSelect: setDate };
 };
 
@@ -71,10 +85,10 @@ const BookTop = (props: {
 	const [isbn, setIsbn] = useState(props.book.getIsbn());
 	const [author, setAuthor] = useState(props.book.getAuthor());
 
-	const dateParsed = toDate(releaseDate);
-	const localePickerState = useDatepickerState(dateParsed);
+	const localePickerState = useDatepickerState(toDate(releaseDate));
 
 	useEffect(() => {
+		localePickerState.onSelect(toDate(props.book.getReleaseDate()));
 		setReleaseDate(props.book.getReleaseDate());
 		setTitle(props.book.getTitle());
 		setIsbn(props.book.getIsbn());
@@ -96,20 +110,11 @@ const BookTop = (props: {
 				<Text>Fecha de Lanzamiento: </Text>
 				<Datepicker
 					disabled={!props.isEditionActive}
-					accessoryLeft={DatepickerIcon}
 					size="small"
+					accessoryLeft={DatepickerIcon}
 					min={new Date(1900, 0, 1)}
 					dateService={localeDateService}
 					{...localePickerState}
-					onVisibleDateChange={(date) =>
-						setReleaseDate(
-							Intl.DateTimeFormat("es-ec", {
-								year: "numeric",
-								month: "2-digit",
-								day: "2-digit",
-							}).format(date),
-						)
-					}
 				/>
 			</Layout>
 			<Layout style={{ flexDirection: "row" }}>
@@ -202,6 +207,8 @@ const BookMiddle = (props: {
 	isEditionActive: boolean;
 }) => {
 	const [modalVisibility, setModalVisibility] = useState(false);
+	const [modalChildren, setModalChildren] = useState<JSX.Element>();
+
 	const [recommended, setRecommended] = useState(props.book.isRecommended());
 	const [bestSeller, setBestSeller] = useState(props.book.isBestSeller());
 	const [recent, setRecent] = useState(props.book.isRecent());
@@ -239,7 +246,7 @@ const BookMiddle = (props: {
 					borderRadius: 5,
 				}}
 			>
-				<Layout style={{ width: "10%" }}>{}</Layout>
+				<Layout style={{ width: "10%" }} />
 				<Layout style={{ width: "70%", flexDirection: "row", justifyContent: "space-evenly" }}>
 					<Layout style={{ width: "30%", alignItems: "center" }}>
 						<Text style={{ fontSize: 10 }}>Reciente</Text>
@@ -314,12 +321,12 @@ const BookMiddle = (props: {
 					</TouchableOpacity>
 				</Layout>
 			</Layout>
-			<Modal visible={modalVisibility} backdropStyle={{ backgroundColor: "rgba(0, 0, 0, 0.5)" }} onBackdropPress={() => setModalVisibility(false)}>
-				<Card disabled={true}>
-					<Text>Welcome to UI Kitten 😻</Text>
-					<Button onPress={() => setModalVisibility(false)}>DISMISS</Button>
-				</Card>
-			</Modal>
+			<Modal
+				visible={modalVisibility}
+				backdropStyle={{ backgroundColor: "rgba(0, 0, 0, 0.5)" }}
+				onBackdropPress={() => setModalVisibility(false)}
+				children={modalChildren}
+			/>
 			<Layout style={{ flex: 4, flexDirection: "row" }}>
 				<Layout
 					style={{
@@ -356,18 +363,39 @@ const BookMiddle = (props: {
 						<Text>IVA</Text>
 					</Layout>
 					<Layout style={{ width: "30%", height: "100%", justifyContent: "space-around", alignItems: "center" }}>
-						<Button disabled={!props.isEditionActive} size="tiny" onPress={() => setModalVisibility(true)}>
-							{discountPercentage}
+						<Button
+							disabled={!props.isEditionActive}
+							size="tiny"
+							onPress={() => {
+								setModalChildren(<ModalDiscount setModalVisibility={setModalVisibility} />);
+								setModalVisibility(true);
+							}}
+						>
+							{inOffer ? discountPercentage : "0"}
 						</Button>
 						<Button disabled={true} size="tiny">
-							{ivaPercentage !== undefined ? ivaPercentage.toString() : "0"}
+							{hasIva ? "12" : "0"}
 						</Button>
 					</Layout>
 				</Layout>
 				<Layout style={{ width: "30%", justifyContent: "space-around", alignItems: "flex-end" }}>
 					<Layout style={{ flexDirection: "row" }}>
-						<Button disabled={!props.isEditionActive} size="small" onPress={() => setModalVisibility(true)}>
-							{grossPricePerUnit || ""}
+						<Button
+							disabled={!props.isEditionActive}
+							size="small"
+							onPress={() => {
+								setModalChildren(
+									<ModalPrice
+										isEditionActive={props.isEditionActive}
+										setModalVisibility={setModalVisibility}
+										grossPricePerUnit={grossPricePerUnit || 0}
+										setGrossPricePerUnit={setGrossPricePerUnit}
+									/>,
+								);
+								setModalVisibility(true);
+							}}
+						>
+							{grossPricePerUnit?.toFixed(2) || ""}
 						</Button>
 						<Text style={{ textAlignVertical: "center", fontSize: 25 }}> 💲</Text>
 					</Layout>
@@ -382,6 +410,42 @@ const BookMiddle = (props: {
 		</Layout>
 	);
 };
+const ModalDiscount = (props: { setModalVisibility: React.Dispatch<React.SetStateAction<boolean>> }) => (
+	<Card disabled={true}>
+		<Text>Cambiar porcentaje de Descuento</Text>
+		<Button onPress={() => props.setModalVisibility(false)}>DISMISS</Button>
+	</Card>
+);
+const ModalPrice = (props: {
+	isEditionActive: boolean;
+	setModalVisibility: (value: boolean) => void;
+	grossPricePerUnit: number;
+	setGrossPricePerUnit: (value: number) => void;
+}) => (
+	<Layout style={{ alignItems: "center", padding: 20, borderRadius: 20 }}>
+		<Text>Ingresar nuevo % de Descuento</Text>
+		<Input
+			disabled={!props.isEditionActive}
+			size="small"
+			cursorColor='black'
+			style={{ marginVertical: 20 }}
+			selectTextOnFocus
+			defaultValue={props.grossPricePerUnit.toString()}
+			onChangeText={(newPrice) => {
+				const parsed = Number.parseFloat(newPrice);
+				if (parsed) props.setGrossPricePerUnit(parsed);
+				else props.setGrossPricePerUnit(props.grossPricePerUnit);
+			}}
+			// onEndEditing={() => {
+			// 	props.book.setIsbn(isbn || "");
+			// 	stockBookViMo.updateDraft(props.book);
+			// }}
+		/>
+		<Button size="small" style={{ width: "30%" }} onPress={() => props.setModalVisibility(false)}>
+			OK
+		</Button>
+	</Layout>
+);
 
 const BookBottom = (props: { book: StockBook; isEditionActive: boolean }) => {
 	const [description, setDescription] = useState(props.book.getDescription());

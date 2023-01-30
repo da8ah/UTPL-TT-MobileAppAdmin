@@ -43,6 +43,16 @@ class StockBookViMo {
 		if (this.observer) this.observer(this.stockBook, this.isEditingActive);
 	}
 
+	public updateDraftDate(date: Date) {
+		this.stockBookDraft.setReleaseDate(
+			Intl.DateTimeFormat("es-ec", {
+				year: "numeric",
+				month: "2-digit",
+				day: "2-digit",
+			}).format(date),
+		);
+	}
+
 	public updateDraft(bookUpdated: StockBook) {
 		this.stockBookDraft = bookUpdated;
 		if (this.observer) this.observer(this.stockBookDraft, this.isEditingActive);
