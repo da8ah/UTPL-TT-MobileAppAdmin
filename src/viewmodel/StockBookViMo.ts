@@ -2,13 +2,20 @@ import StockBook from "../core/entities/StockBook";
 import { Cloner } from "../core/entities/utils";
 import booksViMo from "./BooksViMo";
 
-export type StockBookObserver = (book: StockBook, isEditingActive: boolean) => void;
+export type StockBookObserver = (stockBook: StockBook, isEditingActive: boolean) => void;
 class StockBookViMo {
 	private observer: StockBookObserver | null = null;
 	private stockBook: StockBook = new StockBook();
 	private stockBookDraft: StockBook = new StockBook();
 	private isEditingActive: boolean = false;
+	private bookIndex: number | null = null;
 
+	// GETTER & SETTER
+	public getStockBook(): StockBook {
+		return this.stockBook;
+	}
+
+	// OBSERVER
 	public attach(observer: StockBookObserver) {
 		this.observer = observer;
 	}
@@ -17,12 +24,10 @@ class StockBookViMo {
 		this.observer = null;
 	}
 
-	public notify() {
-		return this.isEditingActive;
-	}
-
+	// LOGIC
 	public getStockBookFromBooksList(index: number): StockBook {
-		const stockBook = booksViMo.getBookByIndex(index);
+		this.bookIndex = index;
+		const stockBook = booksViMo.getBookByIndex(this.bookIndex);
 		if (stockBook.getIsbn() !== undefined) this.stockBook = stockBook;
 		return this.stockBook;
 	}
@@ -43,6 +48,7 @@ class StockBookViMo {
 		if (this.observer) this.observer(this.stockBookDraft, this.isEditingActive);
 	}
 
+	// PERSISTANCE
 	public async deleteDataFromServer() {
 		// if (this.repository) retrievedBooks = await GestionDeLibros.(this.repository);
 		// if (retrievedBooks) this.books = retrievedBooks;

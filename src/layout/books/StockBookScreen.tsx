@@ -1,5 +1,5 @@
 import { Button, Card, Datepicker, I18nConfig, Icon, Input, Layout, Modal, NativeDateService, Text, Toggle } from "@ui-kitten/components";
-import { useEffect, useState } from "react";
+import { useEffect, useReducer, useState } from "react";
 import { Image, StyleSheet, TouchableOpacity } from "react-native";
 import { ScrollView } from "react-native-gesture-handler";
 import StockBook from "../../core/entities/StockBook";
@@ -66,13 +66,20 @@ const BookTop = (props: {
 	book: StockBook;
 	isEditionActive: boolean;
 }) => {
-	const releaseDate = props.book.getReleaseDate();
-	const title = props.book.getTitle();
-	const isbn = props.book.getIsbn();
-	const author = props.book.getAuthor();
+	const [releaseDate, setReleaseDate] = useState(props.book.getReleaseDate());
+	const [title, setTitle] = useState(props.book.getTitle());
+	const [isbn, setIsbn] = useState(props.book.getIsbn());
+	const [author, setAuthor] = useState(props.book.getAuthor());
 
 	const dateParsed = toDate(releaseDate);
 	const localePickerState = useDatepickerState(dateParsed);
+
+	useEffect(() => {
+		setReleaseDate(props.book.getReleaseDate());
+		setTitle(props.book.getTitle());
+		setIsbn(props.book.getIsbn());
+		setAuthor(props.book.getAuthor());
+	}, [props.book]);
 
 	return (
 		<Layout style={styles.bodyTop}>
@@ -94,16 +101,15 @@ const BookTop = (props: {
 					min={new Date(1900, 0, 1)}
 					dateService={localeDateService}
 					{...localePickerState}
-					onVisibleDateChange={(date) => {
-						props.book.setReleaseDate(
+					onVisibleDateChange={(date) =>
+						setReleaseDate(
 							Intl.DateTimeFormat("es-ec", {
 								year: "numeric",
 								month: "2-digit",
 								day: "2-digit",
 							}).format(date),
-						);
-						stockBookViMo.updateDraft(props.book);
-					}}
+						)
+					}
 				/>
 			</Layout>
 			<Layout style={{ flexDirection: "row" }}>
@@ -127,10 +133,11 @@ const BookTop = (props: {
 								value={title}
 								selectionColor='black'
 								style={styles.input}
-								onChangeText={(input) => {
-									props.book.setTitle(props.book.getTitle() + input);
-									console.log(props.book.getTitle());
-
+								onChangeText={(newTitle) => {
+									setTitle(newTitle);
+								}}
+								onEndEditing={() => {
+									props.book.setTitle(title || "");
 									stockBookViMo.updateDraft(props.book);
 								}}
 							/>
@@ -147,7 +154,17 @@ const BookTop = (props: {
 							fadingEdgeLength={50}
 							contentContainerStyle={{ width: `${isbn?.length !== undefined && isbn?.length < 30 ? "100%" : "auto"}` }}
 						>
-							<Input disabled={!props.isEditionActive} value={isbn} selectionColor='black' style={styles.input} />
+							<Input
+								disabled={!props.isEditionActive}
+								value={isbn}
+								selectionColor='black'
+								style={styles.input}
+								onChangeText={(newIsbn) => setIsbn(newIsbn)}
+								onEndEditing={() => {
+									props.book.setIsbn(isbn || "");
+									stockBookViMo.updateDraft(props.book);
+								}}
+							/>
 						</ScrollView>
 					</Layout>
 					<Layout style={styles.inputLayout}>
@@ -161,7 +178,17 @@ const BookTop = (props: {
 							fadingEdgeLength={50}
 							contentContainerStyle={{ width: `${author?.length !== undefined && author?.length < 30 ? "100%" : "auto"}` }}
 						>
-							<Input disabled={!props.isEditionActive} value={author} selectionColor='black' style={styles.input} />
+							<Input
+								disabled={!props.isEditionActive}
+								value={author}
+								selectionColor='black'
+								style={styles.input}
+								onChangeText={(newAuthor) => setAuthor(newAuthor)}
+								onEndEditing={() => {
+									props.book.setAuthor(author || "");
+									stockBookViMo.updateDraft(props.book);
+								}}
+							/>
 						</ScrollView>
 					</Layout>
 				</Layout>
@@ -175,16 +202,30 @@ const BookMiddle = (props: {
 	isEditionActive: boolean;
 }) => {
 	const [modalVisibility, setModalVisibility] = useState(false);
-	const recommended = props.book.isRecommended();
-	const bestSeller = props.book.isBestSeller();
-	const recent = props.book.isRecent();
-	const visible = props.book.isVisible();
-	const inOffer = props.book.isInOffer();
-	const discountPercentage = props.book.getDiscountPercentage();
-	const hasIva = props.book.itHasIva();
-	const ivaPercentage = props.book.getIvaPercentage();
-	const grossPricePerUnit = props.book.getGrossPricePerUnit();
-	const stock = props.book.getStock();
+	const [recommended, setRecommended] = useState(props.book.isRecommended());
+	const [bestSeller, setBestSeller] = useState(props.book.isBestSeller());
+	const [recent, setRecent] = useState(props.book.isRecent());
+	const [visible, setVisible] = useState(props.book.isVisible());
+	const [inOffer, setInOffer] = useState(props.book.isInOffer());
+	const [discountPercentage, setDiscountPercentage] = useState(props.book.getDiscountPercentage());
+	const [hasIva, setHasIva] = useState(props.book.itHasIva());
+	const [ivaPercentage, setIvaPercentage] = useState(props.book.getIvaPercentage());
+	const [grossPricePerUnit, setGrossPricePerUnit] = useState(props.book.getGrossPricePerUnit());
+	const [stock, setStock] = useState(props.book.getStock());
+
+	useEffect(() => {
+		setRecommended(props.book.isRecommended());
+		setBestSeller(props.book.isBestSeller());
+		setRecent(props.book.isRecent());
+		setVisible(props.book.isVisible());
+		setInOffer(props.book.isInOffer());
+		setDiscountPercentage(props.book.getDiscountPercentage());
+		setHasIva(props.book.itHasIva());
+		setIvaPercentage(props.book.getIvaPercentage());
+		setGrossPricePerUnit(props.book.getGrossPricePerUnit());
+		setStock(props.book.getStock());
+	}, [props.book]);
+
 	return (
 		<Layout style={[styles.common, styles.bodyMiddle]}>
 			<Layout
@@ -202,7 +243,15 @@ const BookMiddle = (props: {
 				<Layout style={{ width: "70%", flexDirection: "row", justifyContent: "space-evenly" }}>
 					<Layout style={{ width: "30%", alignItems: "center" }}>
 						<Text style={{ fontSize: 10 }}>Reciente</Text>
-						<TouchableOpacity disabled={!props.isEditionActive} style={{ opacity: !props.isEditionActive ? 0.7 : 1 }}>
+						<TouchableOpacity
+							disabled={!props.isEditionActive}
+							style={{ opacity: !props.isEditionActive ? 0.7 : 1 }}
+							onPress={() => {
+								setRecent(!recent);
+								props.book.setRecent(recent ? recent : false);
+								stockBookViMo.updateDraft(props.book);
+							}}
+						>
 							{!props.isEditionActive ? (
 								<Icon name="clock-outline" fill={recent ? "darkred" : "darkgray"} height="35" width="35" />
 							) : (
@@ -212,7 +261,15 @@ const BookMiddle = (props: {
 					</Layout>
 					<Layout style={{ width: "30%", alignItems: "center" }}>
 						<Text style={{ fontSize: 10 }}>Más vendido</Text>
-						<TouchableOpacity disabled={!props.isEditionActive} style={{ opacity: !props.isEditionActive ? 0.7 : 1 }}>
+						<TouchableOpacity
+							disabled={!props.isEditionActive}
+							style={{ opacity: !props.isEditionActive ? 0.7 : 1 }}
+							onPress={() => {
+								setBestSeller(!bestSeller);
+								props.book.setBestSeller(bestSeller ? bestSeller : false);
+								stockBookViMo.updateDraft(props.book);
+							}}
+						>
 							{!props.isEditionActive ? (
 								<Icon name="star-outline" fill={bestSeller ? "gold" : "darkgray"} height="35" width="35" />
 							) : (
@@ -226,8 +283,8 @@ const BookMiddle = (props: {
 							disabled={!props.isEditionActive}
 							style={{ opacity: !props.isEditionActive ? 0.7 : 1 }}
 							onPress={() => {
-								props.book.setRecommended(!recommended);
-								// console.log(props.book.isRecommended());
+								setRecommended(!recommended);
+								props.book.setRecommended(recommended ? recommended : false);
 								stockBookViMo.updateDraft(props.book);
 							}}
 						>
@@ -240,7 +297,15 @@ const BookMiddle = (props: {
 					</Layout>
 				</Layout>
 				<Layout style={{ width: "10%", justifyContent: "center", alignItems: "flex-end" }}>
-					<TouchableOpacity disabled={!props.isEditionActive} style={{ opacity: !props.isEditionActive ? 0.7 : 1 }}>
+					<TouchableOpacity
+						disabled={!props.isEditionActive}
+						style={{ opacity: !props.isEditionActive ? 0.7 : 1 }}
+						onPress={() => {
+							setVisible(!visible);
+							props.book.setVisible(visible ? visible : false);
+							stockBookViMo.updateDraft(props.book);
+						}}
+					>
 						{!props.isEditionActive ? (
 							<Icon name={visible ? "eye-outline" : "eye-off-outline"} fill={visible ? "black" : "darkgray"} height="35" width="35" />
 						) : (
@@ -267,8 +332,24 @@ const BookMiddle = (props: {
 					}}
 				>
 					<Layout style={{ width: "30%", height: "100%", justifyContent: "space-around" }}>
-						<Toggle disabled={!props.isEditionActive} checked={inOffer} />
-						<Toggle disabled={!props.isEditionActive} checked={hasIva} />
+						<Toggle
+							disabled={!props.isEditionActive}
+							checked={inOffer}
+							onChange={() => {
+								setInOffer(!inOffer);
+								props.book.setInOffer(inOffer ? inOffer : false);
+								stockBookViMo.updateDraft(props.book);
+							}}
+						/>
+						<Toggle
+							disabled={!props.isEditionActive}
+							checked={hasIva}
+							onChange={() => {
+								setHasIva(!hasIva);
+								props.book.setHasIva(hasIva ? hasIva : false);
+								stockBookViMo.updateDraft(props.book);
+							}}
+						/>
 					</Layout>
 					<Layout style={{ backgroundColor: "red", width: "30%", height: "100%", justifyContent: "space-around" }}>
 						<Text>Descuento</Text>
@@ -303,9 +384,13 @@ const BookMiddle = (props: {
 };
 
 const BookBottom = (props: { book: StockBook; isEditionActive: boolean }) => {
-	const description = props.book.getDescription();
+	const [description, setDescription] = useState(props.book.getDescription());
 	const createdDate = props.book.getCreatedDate();
 	const dateSplitted = createdDate?.split("T")[0].split("-");
+
+	useEffect(() => {
+		setDescription(props.book.getDescription());
+	}, [props.book]);
 
 	return (
 		<Layout style={[styles.common, styles.bodyBottom]}>
@@ -328,6 +413,13 @@ const BookBottom = (props: { book: StockBook; isEditionActive: boolean }) => {
 							borderBottomRightRadius: 10,
 						},
 					]}
+					onChangeText={(newDescription) => {
+						setDescription(newDescription);
+					}}
+					onEndEditing={() => {
+						props.book.setDescription(description || "");
+						stockBookViMo.updateDraft(props.book);
+					}}
 				/>
 			</Layout>
 			<Layout style={[styles.common, { flexDirection: "row", justifyContent: "space-around", alignItems: "center" }]}>
@@ -385,10 +477,12 @@ const StockBookScreen = ({ route }: StockBookScreenProps) => {
 	const [book, setBook] = useState(stockBookViMo.getStockBookFromBooksList(route.params.bookIndex));
 	const [isEditionActive, setEditionState] = useState(false);
 
-	const updateState: StockBookObserver = (book: StockBook, isEditingActive: boolean) => {
-		setBook(book);
+	const updateState: StockBookObserver = (stockBook: StockBook, isEditingActive: boolean) => {
+		setBook(stockBook);
 		setEditionState(isEditingActive);
 	};
+
+	useEffect(() => {}, [book]);
 
 	useEffect(() => {
 		stockBookViMo.attach(updateState);
