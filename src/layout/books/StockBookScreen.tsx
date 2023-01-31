@@ -1,7 +1,7 @@
 import Slider from "@react-native-community/slider";
 import { useNavigation } from "@react-navigation/native";
 import { Button, Datepicker, I18nConfig, Icon, Input, Layout, Modal, NativeDateService, Text, Toggle } from "@ui-kitten/components";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { Image, StyleSheet, TouchableOpacity } from "react-native";
 import { ScrollView } from "react-native-gesture-handler";
 import StockBook from "../../core/entities/StockBook";
@@ -126,11 +126,9 @@ const BookTop = (props: {
 								disabled={!props.isEditionActive}
 								value={title}
 								style={styles.input}
-								onChangeText={(newTitle) => {
-									setTitle(newTitle);
-								}}
+								onChangeText={(newTitle) => setTitle(newTitle)}
 								onEndEditing={() => {
-									props.book.setTitle(title || "");
+									props.book.setTitle(title?.trim() || "");
 									stockBookViMo.updateDraft(props.book);
 								}}
 							/>
@@ -151,9 +149,12 @@ const BookTop = (props: {
 								disabled={!props.isEditionActive}
 								value={isbn}
 								style={styles.input}
-								onChangeText={(newIsbn) => setIsbn(newIsbn)}
+								onChangeText={(newIsbn) => {
+									const regex = new RegExp("^\\d{0,13}$");
+									if (regex.test(newIsbn)) setIsbn(newIsbn);
+								}}
 								onEndEditing={() => {
-									props.book.setIsbn(isbn || "");
+									props.book.setIsbn(isbn?.trim() || "");
 									stockBookViMo.updateDraft(props.book);
 								}}
 							/>
@@ -176,7 +177,7 @@ const BookTop = (props: {
 								style={styles.input}
 								onChangeText={(newAuthor) => setAuthor(newAuthor)}
 								onEndEditing={() => {
-									props.book.setAuthor(author || "");
+									props.book.setAuthor(author?.trim() || "");
 									stockBookViMo.updateDraft(props.book);
 								}}
 							/>
@@ -239,8 +240,8 @@ const BookMiddle = (props: {
 						<TouchableOpacity
 							disabled={!props.isEditionActive}
 							style={{ opacity: !props.isEditionActive ? 0.7 : 1 }}
-							onPress={() => {
-								setRecent(!recent);
+							onPressIn={() => setRecent(!recent)}
+							onPressOut={() => {
 								props.book.setRecent(recent ? recent : false);
 								stockBookViMo.updateDraft(props.book);
 							}}
@@ -257,8 +258,8 @@ const BookMiddle = (props: {
 						<TouchableOpacity
 							disabled={!props.isEditionActive}
 							style={{ opacity: !props.isEditionActive ? 0.7 : 1 }}
-							onPress={() => {
-								setBestSeller(!bestSeller);
+							onPressIn={() => setBestSeller(!bestSeller)}
+							onPressOut={() => {
 								props.book.setBestSeller(bestSeller ? bestSeller : false);
 								stockBookViMo.updateDraft(props.book);
 							}}
@@ -275,8 +276,8 @@ const BookMiddle = (props: {
 						<TouchableOpacity
 							disabled={!props.isEditionActive}
 							style={{ opacity: !props.isEditionActive ? 0.7 : 1 }}
-							onPress={() => {
-								setRecommended(!recommended);
+							onPressIn={() => setRecommended(!recommended)}
+							onPressOut={() => {
 								props.book.setRecommended(recommended ? recommended : false);
 								stockBookViMo.updateDraft(props.book);
 							}}
@@ -293,8 +294,8 @@ const BookMiddle = (props: {
 					<TouchableOpacity
 						disabled={!props.isEditionActive}
 						style={{ opacity: !props.isEditionActive ? 0.7 : 1 }}
-						onPress={() => {
-							setVisible(!visible);
+						onPressIn={() => setVisible(!visible)}
+						onPressOut={() => {
 							props.book.setVisible(visible ? visible : false);
 							stockBookViMo.updateDraft(props.book);
 						}}
@@ -329,8 +330,8 @@ const BookMiddle = (props: {
 						<Toggle
 							disabled={!props.isEditionActive}
 							checked={inOffer}
-							onChange={() => {
-								setInOffer(!inOffer);
+							onPressIn={() => setInOffer(!inOffer)}
+							onPressOut={() => {
 								props.book.setInOffer(inOffer);
 								stockBookViMo.updateDraft(props.book);
 							}}
@@ -338,8 +339,8 @@ const BookMiddle = (props: {
 						<Toggle
 							disabled={!props.isEditionActive}
 							checked={hasIva}
-							onChange={() => {
-								setHasIva(!hasIva);
+							onPressIn={() => setHasIva(!hasIva)}
+							onPressOut={() => {
 								props.book.setHasIva(hasIva);
 								stockBookViMo.updateDraft(props.book);
 							}}
@@ -453,16 +454,16 @@ const ModalDiscount = (props: {
 				minimumValue={1}
 				maximumValue={100}
 				onValueChange={(value) => {
-					setAmount(calcAmount(price || 1, Math.round(value)));
 					setPercentage(Math.round(value));
+					setAmount(calcAmount(price || 1, Math.round(percentage)));
 				}}
 			/>
 			<Button
 				size="small"
 				style={{ width: "50%" }}
-				onPress={() => {
+				onPressOut={() => {
 					props.setDiscountPercentage(percentage);
-					props.book.setDiscountPercentage(props.discountPercentage);
+					props.book.setDiscountPercentage(percentage);
 					stockBookViMo.updateDraft(props.book);
 					props.setModalVisibility(false);
 				}}
@@ -501,9 +502,8 @@ const ModalPrice = (props: {
 					defaultValue={parteEntera}
 					value={parteEntera}
 					onChangeText={(newInt) => {
-						if (newInt.length >= 0 && newInt.length <= 3) {
-							if (!(Number.isNaN(Number(newInt)) || newInt.includes("."))) setParteEntera(newInt);
-						}
+						const regex = new RegExp("^\\d{0,3}$");
+						if (!Number.isNaN(Number(newInt)) && regex.test(newInt)) setParteEntera(newInt);
 					}}
 				/>
 				<Text style={{ textAlignVertical: "bottom" }}> . </Text>
@@ -517,9 +517,8 @@ const ModalPrice = (props: {
 					defaultValue={parteDecimal}
 					value={parteDecimal}
 					onChangeText={(newFloat) => {
-						if (newFloat.length >= 0 && newFloat.length <= 2) {
-							if (!(Number.isNaN(Number(newFloat)) || newFloat.includes("."))) setParteDecimal(newFloat);
-						}
+						const regex = new RegExp("^\\d{0,2}$");
+						if (!Number.isNaN(Number(newFloat)) && regex.test(newFloat)) setParteDecimal(newFloat);
 					}}
 				/>
 			</Layout>
@@ -527,10 +526,10 @@ const ModalPrice = (props: {
 				size="small"
 				style={{ width: "50%" }}
 				onPress={() => {
-					const parse = Number(`${parteEntera}.${parteDecimal}`);
-					if (!Number.isNaN(parse)) {
-						props.setGrossPricePerUnit(parse);
-						props.book.setGrossPricePerUnit(props.grossPricePerUnit);
+					const price = Number(`${parteEntera}.${parteDecimal}`);
+					if (!Number.isNaN(price)) {
+						props.setGrossPricePerUnit(price);
+						props.book.setGrossPricePerUnit(price);
 						stockBookViMo.updateDraft(props.book);
 						props.setModalVisibility(false);
 					}
@@ -567,9 +566,8 @@ const ModalStock = (props: {
 					defaultValue={cant}
 					value={cant}
 					onChangeText={(newCant) => {
-						if (newCant.length >= 0 && newCant.length <= 4) {
-							if (!(Number.isNaN(Number(newCant)) || newCant.includes("."))) setCant(newCant);
-						}
+						const regex = new RegExp("^\\d{0,4}$");
+						if (!Number.isNaN(Number(newCant)) && regex.test(newCant)) setCant(newCant);
 					}}
 				/>
 			</Layout>
@@ -580,7 +578,7 @@ const ModalStock = (props: {
 					const parse = Number(cant);
 					if (!Number.isNaN(parse)) {
 						props.setStock(parse);
-						props.book.setStock(props.stock);
+						props.book.setStock(parse);
 						stockBookViMo.updateDraft(props.book);
 						props.setModalVisibility(false);
 					}
@@ -627,7 +625,7 @@ const BookBottom = (props: { book: StockBook; isEditionActive: boolean }) => {
 						setDescription(newDescription);
 					}}
 					onEndEditing={() => {
-						props.book.setDescription(description || "");
+						props.book.setDescription(description?.trim() || "");
 						stockBookViMo.updateDraft(props.book);
 					}}
 				/>
@@ -680,9 +678,11 @@ const BookBottom = (props: { book: StockBook; isEditionActive: boolean }) => {
 				/>
 			</Layout>
 			<Layout>
-				<Text style={{ fontSize: 10, fontStyle: "italic", textAlign: "right" }}>{`(Fecha de creación del registro: ${Intl.DateTimeFormat(
-					"en-US",
-				).format(
+				<Text style={{ fontSize: 10, fontStyle: "italic", textAlign: "right" }}>{`(Fecha de creación del registro: ${Intl.DateTimeFormat("ec", {
+					day: "2-digit",
+					month: "2-digit",
+					year: "numeric",
+				}).format(
 					dateSplitted !== undefined
 						? new Date(Number.parseInt(dateSplitted[0]), Number.parseInt(dateSplitted[1]) - 1, Number.parseInt(dateSplitted[2]))
 						: new Date(2000, 0, 1),
@@ -769,42 +769,51 @@ const ModalSaveConfirmation = (props: {
 				size="small"
 				status="success"
 				style={{ width: "50%" }}
-				// onPress={async () => {
-				// 	const confirmation = await stockBookViMo.saveDataToServer();
-				// 	if (confirmation === null) {
-				// 		props.setModalChildren(
-				// 			<Layout style={{ alignItems: "center", padding: 20, borderRadius: 20 }}>
-				// 				<Layout style={{ width: "100%", alignItems: "center", marginTop: 10 }}>
-				// 					<Text style={{ textTransform: "uppercase" }}>La operación falló</Text>
-				// 					<Icon name="alert-circle-outline" fill="darkred" height="30" width="30" />
-				// 					<Text style={{ fontSize: 10, marginVertical: 5 }}>(Contacte a soporte técnico o intente más tarde)</Text>
-				// 				</Layout>
-				// 				<Button size="small" status="danger" style={{ width: "50%", marginTop: 10 }} onPress={() => props.setModalVisibility(false)}>
-				// 					Ok
-				// 				</Button>
-				// 			</Layout>,
-				// 		);
-				// 		return;
-				// 	}
-				// 	if (confirmation) {
-				// 		// rome-ignore lint/suspicious/noExplicitAny: <explanation>
-				// 		const navigation: any = useNavigation<StockBookScreenProps>();
-				// 		navigation.goBack();
-				// 	} else {
-				// 		props.setModalChildren(
-				// 			<Layout style={{ alignItems: "center", padding: 20, borderRadius: 20 }}>
-				// 				<Layout style={{ width: "100%", alignItems: "center", marginTop: 10 }}>
-				// 					<Text style={{ textTransform: "uppercase" }}>La operación falló</Text>
-				// 					<Icon name="alert-circle-outline" fill="darkred" height="30" width="30" />
-				// 					<Text style={{ fontSize: 12, marginVertical: 5 }}>(El registro no pudo ser actualizado)</Text>
-				// 				</Layout>
-				// 				<Button size="small" status="info" style={{ width: "50%", marginTop: 10 }} onPress={() => props.setModalVisibility(false)}>
-				// 					Ok
-				// 				</Button>
-				// 			</Layout>,
-				// 		);
-				// 	}
-				// }}
+				onPress={async () => {
+					const confirmation = await stockBookViMo.saveDataToServer();
+					if (confirmation === null) {
+						props.setModalChildren(
+							<Layout style={{ alignItems: "center", padding: 20, borderRadius: 20 }}>
+								<Layout style={{ width: "100%", alignItems: "center", marginTop: 10 }}>
+									<Text style={{ textTransform: "uppercase" }}>La operación falló</Text>
+									<Icon name="alert-circle-outline" fill="darkred" height="30" width="30" />
+									<Text style={{ fontSize: 10, marginVertical: 5 }}>(Contacte a soporte técnico o intente más tarde)</Text>
+								</Layout>
+								<Button size="small" status="danger" style={{ width: "50%", marginTop: 10 }} onPress={() => props.setModalVisibility(false)}>
+									Ok
+								</Button>
+							</Layout>,
+						);
+						return;
+					}
+					if (!confirmation) {
+						props.setModalChildren(
+							<Layout style={{ alignItems: "center", padding: 20, borderRadius: 20 }}>
+								<Layout style={{ width: "100%", alignItems: "center", marginTop: 10 }}>
+									<Text style={{ textTransform: "uppercase" }}>Registro no actualizado</Text>
+									<Icon name="alert-triangle-outline" fill="gold" height="30" width="30" />
+									<Text style={{ fontSize: 12, marginVertical: 5 }}>(Verifique que los datos sean correctos)</Text>
+								</Layout>
+								<Button size="small" status="info" style={{ width: "50%", marginTop: 10 }} onPress={() => props.setModalVisibility(false)}>
+									Ok
+								</Button>
+							</Layout>,
+						);
+					} else {
+						props.setModalChildren(
+							<Layout style={{ alignItems: "center", padding: 20, borderRadius: 20 }}>
+								<Layout style={{ width: "100%", alignItems: "center", marginTop: 10 }}>
+									<Text style={{ textTransform: "uppercase" }}>Registro Actualizado</Text>
+									<Icon name="checkmark-circle-outline" fill="darkgreen" height="30" width="30" />
+									<Text style={{ fontSize: 12, marginVertical: 5 }}>(Se redireccionará al Inicio)</Text>
+								</Layout>
+								<Button size="small" status="success" style={{ width: "50%", marginTop: 10 }} onPress={() => props.setModalVisibility(false)}>
+									Ok
+								</Button>
+							</Layout>,
+						);
+					}
+				}}
 			>
 				Confirmar
 			</Button>
@@ -821,7 +830,7 @@ const StockBookScreen = ({ route }: StockBookScreenProps) => {
 	const updateState: StockBookObserver = (stockBook: StockBook, isEditingActive: boolean, pop: boolean) => {
 		setBook(stockBook);
 		setEditionState(isEditingActive);
-		if (pop) navigation.pop();
+		if (pop) navigation.popToTop();
 	};
 
 	useEffect(() => {}, [book]);

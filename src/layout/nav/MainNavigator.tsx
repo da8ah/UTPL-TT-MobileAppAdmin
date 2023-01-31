@@ -14,11 +14,8 @@ const MainNavigator = () => (
 			</Stack.Group>
 			<Stack.Group
 				screenOptions={{
-					presentation: "containedModal",
 					animation: "fade_from_bottom",
-					gestureEnabled: true,
-					gestureDirection: "vertical",
-					fullScreenGestureEnabled: true,
+					animationTypeForReplace: "pop",
 				}}
 			>
 				{/* <Stack.Group> */}

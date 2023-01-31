@@ -22,6 +22,8 @@ const BooksLayout = () => {
 		setBooks(books);
 	};
 
+	useEffect(() => {}, [books]);
+
 	const queryDataFromServer = () => {
 		setRefreshing(true);
 		setTimeout(async () => {

@@ -53,7 +53,7 @@ export default class PersistenciaDeLibros implements IStrategy {
 				},
 				body: JSON.stringify(bookToUpdate),
 			};
-			return await fetch(`${this.apiAdminBooks}/isbn=${bookToSearch.getIsbn()}`, bodyContent).then((res) => res.ok);
+			return await fetch(`${this.apiAdminBooks}/${bookToSearch.getIsbn()}`, bodyContent).then((res) => res.ok);
 		} catch (error) {
 			console.error(error);
 			return false;

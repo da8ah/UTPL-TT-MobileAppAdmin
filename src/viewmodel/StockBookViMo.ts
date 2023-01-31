@@ -66,19 +66,17 @@ class StockBookViMo {
 	public async deleteDataFromServer(): Promise<boolean | null> {
 		let confirmation = null;
 		if (this.repository) confirmation = await GestionDeLibros.eliminarLibro(this.stockBook, this.repository);
-		if (confirmation && this.bookIndex !== null) {
-			const deleteFromBooks = booksViMo.removeBookByIndexFromLocalArray(this.bookIndex);
-			if (deleteFromBooks === null) await booksViMo.updateBooks();
-		}
 		if (this.observer) this.observer(this.stockBookDraft, this.isEditingActive, true);
+		if (confirmation) await booksViMo.updateBooks();
 		return confirmation;
 	}
 
 	public async saveDataToServer() {
-		// let confirmation = null;
-		// if (this.repository) confirmation = await GestionDeLibros.actualizarLibro(this.stockBook, this.stockBookDraft, this.repository);
-		// if (confirmation) if (this.observer) this.observer(this.stockBookDraft, this.isEditingActive);
-		// return confirmation;
+		let confirmation = null;
+		if (this.repository) confirmation = await GestionDeLibros.actualizarLibro(this.stockBook, this.stockBookDraft, this.repository);
+		if (this.observer) this.observer(this.stockBookDraft, this.isEditingActive, true);
+		if (confirmation) await booksViMo.updateBooks();
+		return confirmation;
 	}
 }
 

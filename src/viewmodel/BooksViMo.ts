@@ -36,15 +36,6 @@ export class BooksViMo {
 	public getBookByIndex(index: number): StockBook {
 		return this.books[index] || new StockBook();
 	}
-	public removeBookByIndexFromLocalArray(index: number) {
-		try {
-			this.books.splice(index, 1);
-			if (this.observer && this.books) this.observer(this.books);
-		} catch (error) {
-			console.log(error);
-			return null;
-		}
-	}
 }
 
 const booksViMo = new BooksViMo();
