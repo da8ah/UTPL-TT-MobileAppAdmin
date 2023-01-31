@@ -1,19 +1,31 @@
+import AbstractRepository from "../../data/AbstractRepository";
+import { ServerDataSource } from "../../data/ServerDataSource";
+import PersistenciaDeLibros from "../../data/strategies/PersistenciaDeLibros";
 import StockBook from "../../entities/StockBook";
-import IPersistenciaLibro from "../../ports/persistencia/IPersistenciaLibro";
 
 export default class GestionDeLibros {
-	public async crearLibro(stockBook: StockBook, iPersistenciaLibro: IPersistenciaLibro): Promise<StockBook> {
-		const bookFound = await iPersistenciaLibro.buscarUnLibroByIsbn(stockBook);
-		if (bookFound.getIsbn()) return stockBook;
-		return iPersistenciaLibro.guardarLibroNuevo(stockBook);
+	public static async crearLibro(stockBook: StockBook, repository: AbstractRepository): Promise<boolean | null> {
+		const repo = repository as ServerDataSource;
+		repo.setStrategy(new PersistenciaDeLibros());
+		const confirmation = await repo.createData(stockBook);
+		if (confirmation === null) return null;
+		return confirmation;
 	}
 
 	// Two StockBooks required in case of ISBN update
-	public async actualizarLibro(bookToSearch: StockBook, bookToUpdate: StockBook, iPersistenciaLibro: IPersistenciaLibro): Promise<StockBook> {
-		return iPersistenciaLibro.actualizarLibro(bookToSearch, bookToUpdate);
+	public static async actualizarLibro(bookToSearch: StockBook, bookToUpdate: StockBook, repository: AbstractRepository): Promise<boolean | null> {
+		const repo = repository as ServerDataSource;
+		repo.setStrategy(new PersistenciaDeLibros());
+		const confirmation = await repo.updateData(bookToSearch, bookToUpdate);
+		if (confirmation === null) return null;
+		return confirmation;
 	}
 
-	public async eliminarLibro(stockBook: StockBook, iPersistenciaLibro: IPersistenciaLibro): Promise<StockBook> {
-		return iPersistenciaLibro.eliminarLibro(stockBook);
+	public static async eliminarLibro(stockBook: StockBook, repository: AbstractRepository): Promise<boolean | null> {
+		const repo = repository as ServerDataSource;
+		repo.setStrategy(new PersistenciaDeLibros());
+		const confirmation = await repo.deleteData(stockBook);
+		if (confirmation === null) return null;
+		return confirmation;
 	}
 }

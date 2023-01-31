@@ -1,5 +1,5 @@
 import AbstractRepository from "../core/data/AbstractRepository";
-import serverDataSource from "../core/data/ServerDataSource";
+import ServerDataSource from "../core/data/ServerDataSource";
 import StockBook from "../core/entities/StockBook";
 import GestionDeInicio from "../core/usecases/GestionDeInicio";
 
@@ -7,7 +7,7 @@ export type BooksObserver = (books: StockBook[]) => void;
 
 export class BooksViMo {
 	private observer: BooksObserver | null = null;
-	private repository: AbstractRepository | null = serverDataSource;
+	private repository: AbstractRepository | null = ServerDataSource;
 	private books: StockBook[] = [];
 
 	public attach(observer: BooksObserver) {
@@ -35,6 +35,15 @@ export class BooksViMo {
 
 	public getBookByIndex(index: number): StockBook {
 		return this.books[index] || new StockBook();
+	}
+	public removeBookByIndexFromLocalArray(index: number) {
+		try {
+			this.books.splice(index, 1);
+			if (this.observer && this.books) this.observer(this.books);
+		} catch (error) {
+			console.log(error);
+			return null;
+		}
 	}
 }
 

@@ -1,6 +1,7 @@
 import Slider from "@react-native-community/slider";
+import { useNavigation } from "@react-navigation/native";
 import { Button, Datepicker, I18nConfig, Icon, Input, Layout, Modal, NativeDateService, Text, Toggle } from "@ui-kitten/components";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Image, StyleSheet, TouchableOpacity } from "react-native";
 import { ScrollView } from "react-native-gesture-handler";
 import StockBook from "../../core/entities/StockBook";
@@ -372,7 +373,7 @@ const BookMiddle = (props: {
 						</Layout>
 						<Layout style={{ flexDirection: "row" }}>
 							<Text style={{ textAlignVertical: "center" }}> % </Text>
-							<Button disabled={!hasIva} size="small" status={!hasIva ? undefined : "danger"}>
+							<Button disabled={!(props.isEditionActive && hasIva)} size="small" status={!hasIva ? undefined : "danger"}>
 								{hasIva ? "12" : "0"}
 							</Button>
 						</Layout>
@@ -592,6 +593,8 @@ const ModalStock = (props: {
 };
 
 const BookBottom = (props: { book: StockBook; isEditionActive: boolean }) => {
+	const [modalVisibility, setModalVisibility] = useState(false);
+	const [modalChildren, setModalChildren] = useState<JSX.Element>();
 	const [description, setDescription] = useState(props.book.getDescription());
 	const createdDate = props.book.getCreatedDate();
 	const dateSplitted = createdDate?.split("T")[0].split("-");
@@ -629,6 +632,13 @@ const BookBottom = (props: { book: StockBook; isEditionActive: boolean }) => {
 					}}
 				/>
 			</Layout>
+			<Modal
+				visible={modalVisibility}
+				style={{ width: "70%" }}
+				backdropStyle={{ backgroundColor: "rgba(0, 0, 0, 0.5)" }}
+				onBackdropPress={() => setModalVisibility(false)}
+				children={modalChildren}
+			/>
 			<Layout style={[styles.common, { flexDirection: "row", justifyContent: "space-around", alignItems: "center" }]}>
 				<Button
 					disabled={props.isEditionActive}
@@ -640,7 +650,7 @@ const BookBottom = (props: { book: StockBook; isEditionActive: boolean }) => {
 				/>
 				<Button
 					disabled={!props.isEditionActive}
-					status={!props.isEditionActive ? "basic" : "danger"}
+					status={!props.isEditionActive ? "basic" : "warning"}
 					size="tiny"
 					accessoryLeft={SlashIcon}
 					style={{ width: "20%" }}
@@ -652,6 +662,10 @@ const BookBottom = (props: { book: StockBook; isEditionActive: boolean }) => {
 					size="tiny"
 					accessoryLeft={DeleteIcon}
 					style={{ width: "20%" }}
+					onPress={() => {
+						setModalChildren(<ModalDeleteConfirmation setModalVisibility={setModalVisibility} setModalChildren={setModalChildren} />);
+						setModalVisibility(true);
+					}}
 				/>
 				<Button
 					disabled={!props.isEditionActive}
@@ -659,6 +673,10 @@ const BookBottom = (props: { book: StockBook; isEditionActive: boolean }) => {
 					size="tiny"
 					accessoryLeft={SaveIcon}
 					style={{ width: "25%" }}
+					onPress={() => {
+						setModalChildren(<ModalSaveConfirmation setModalVisibility={setModalVisibility} setModalChildren={setModalChildren} />);
+						setModalVisibility(true);
+					}}
 				/>
 			</Layout>
 			<Layout>
@@ -677,14 +695,133 @@ const EditIcon = () => <Icon name="edit" fill="white" height="30" width="30" />;
 const SlashIcon = () => <Icon name="slash" fill="white" height="30" width="30" />;
 const DeleteIcon = () => <Icon name="trash-2" fill="white" height="30" width="30" />;
 const SaveIcon = () => <Icon name="save" fill="white" height="30" width="30" />;
+const ModalDeleteConfirmation = (props: {
+	setModalVisibility: (value: boolean) => void;
+	setModalChildren: (children: JSX.Element) => void;
+}) => {
+	const [percentage, setPercentage] = useState(1);
+	const [buttonDisabled, setButtonDisabledState] = useState(true);
+
+	return (
+		<Layout style={{ alignItems: "center", padding: 20, borderRadius: 20 }}>
+			<Text>Eliminar Permanentemente</Text>
+			<Slider
+				style={{ width: "100%", height: 40, marginTop: 10 }}
+				thumbTintColor="darkred"
+				minimumTrackTintColor="darkred"
+				value={percentage}
+				step={1}
+				minimumValue={1}
+				maximumValue={100}
+				onValueChange={(newPercentage) => setPercentage(newPercentage)}
+				onSlidingComplete={(currentPercentage) => (currentPercentage === 100 ? setButtonDisabledState(false) : setButtonDisabledState(true))}
+			/>
+			<Text style={{ fontSize: 12, marginVertical: 5 }}>(Deslice para confirmar {percentage}%)</Text>
+			<Button
+				disabled={buttonDisabled}
+				size="small"
+				status="danger"
+				style={{ width: "50%", marginTop: 10 }}
+				onPress={async () => {
+					const confirmation = await stockBookViMo.deleteDataFromServer();
+					if (!confirmation) {
+						props.setModalChildren(
+							<Layout style={{ alignItems: "center", padding: 20, borderRadius: 20 }}>
+								<Layout style={{ width: "100%", alignItems: "center", marginTop: 10 }}>
+									<Text style={{ textTransform: "uppercase" }}>La operación falló</Text>
+									<Icon name="alert-circle-outline" fill="darkred" height="30" width="30" />
+									<Text style={{ fontSize: 12, marginVertical: 5 }}>(El registro no pudo ser eliminado)</Text>
+								</Layout>
+								<Button size="small" status="info" style={{ width: "50%", marginTop: 10 }} onPress={() => props.setModalVisibility(false)}>
+									Ok
+								</Button>
+							</Layout>,
+						);
+					}
+				}}
+			>
+				Confirmar
+			</Button>
+		</Layout>
+	);
+};
+const ModalSaveConfirmation = (props: {
+	setModalVisibility: (value: boolean) => void;
+	setModalChildren: (children: JSX.Element) => void;
+}) => {
+	const [percentage, setPercentage] = useState(1);
+	const [buttonDisabled, setButtonDisabledState] = useState(true);
+
+	return (
+		<Layout style={{ alignItems: "center", padding: 20, borderRadius: 20 }}>
+			<Text>Deslice para confirmar {percentage}%</Text>
+			<Slider
+				style={{ width: "100%", height: 40, marginVertical: 20 }}
+				value={percentage}
+				step={1}
+				minimumValue={1}
+				maximumValue={100}
+				onValueChange={(newPercentage) => setPercentage(newPercentage)}
+				onSlidingComplete={(currentPercentage) => (currentPercentage === 100 ? setButtonDisabledState(false) : setButtonDisabledState(true))}
+			/>
+			<Button
+				disabled={buttonDisabled}
+				size="small"
+				status="success"
+				style={{ width: "50%" }}
+				// onPress={async () => {
+				// 	const confirmation = await stockBookViMo.saveDataToServer();
+				// 	if (confirmation === null) {
+				// 		props.setModalChildren(
+				// 			<Layout style={{ alignItems: "center", padding: 20, borderRadius: 20 }}>
+				// 				<Layout style={{ width: "100%", alignItems: "center", marginTop: 10 }}>
+				// 					<Text style={{ textTransform: "uppercase" }}>La operación falló</Text>
+				// 					<Icon name="alert-circle-outline" fill="darkred" height="30" width="30" />
+				// 					<Text style={{ fontSize: 10, marginVertical: 5 }}>(Contacte a soporte técnico o intente más tarde)</Text>
+				// 				</Layout>
+				// 				<Button size="small" status="danger" style={{ width: "50%", marginTop: 10 }} onPress={() => props.setModalVisibility(false)}>
+				// 					Ok
+				// 				</Button>
+				// 			</Layout>,
+				// 		);
+				// 		return;
+				// 	}
+				// 	if (confirmation) {
+				// 		// rome-ignore lint/suspicious/noExplicitAny: <explanation>
+				// 		const navigation: any = useNavigation<StockBookScreenProps>();
+				// 		navigation.goBack();
+				// 	} else {
+				// 		props.setModalChildren(
+				// 			<Layout style={{ alignItems: "center", padding: 20, borderRadius: 20 }}>
+				// 				<Layout style={{ width: "100%", alignItems: "center", marginTop: 10 }}>
+				// 					<Text style={{ textTransform: "uppercase" }}>La operación falló</Text>
+				// 					<Icon name="alert-circle-outline" fill="darkred" height="30" width="30" />
+				// 					<Text style={{ fontSize: 12, marginVertical: 5 }}>(El registro no pudo ser actualizado)</Text>
+				// 				</Layout>
+				// 				<Button size="small" status="info" style={{ width: "50%", marginTop: 10 }} onPress={() => props.setModalVisibility(false)}>
+				// 					Ok
+				// 				</Button>
+				// 			</Layout>,
+				// 		);
+				// 	}
+				// }}
+			>
+				Confirmar
+			</Button>
+		</Layout>
+	);
+};
 
 const StockBookScreen = ({ route }: StockBookScreenProps) => {
 	const [book, setBook] = useState(stockBookViMo.getStockBookFromBooksList(route.params.bookIndex));
 	const [isEditionActive, setEditionState] = useState(false);
+	// rome-ignore lint/suspicious/noExplicitAny: <explanation>
+	const navigation: any = useNavigation<StockBookScreenProps>();
 
-	const updateState: StockBookObserver = (stockBook: StockBook, isEditingActive: boolean) => {
+	const updateState: StockBookObserver = (stockBook: StockBook, isEditingActive: boolean, pop: boolean) => {
 		setBook(stockBook);
 		setEditionState(isEditingActive);
+		if (pop) navigation.pop();
 	};
 
 	useEffect(() => {}, [book]);

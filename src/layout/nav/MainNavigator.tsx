@@ -13,19 +13,16 @@ const MainNavigator = () => (
 				<Stack.Screen name='MainTabs' component={MainTabsNav} />
 			</Stack.Group>
 			<Stack.Group
-				screenOptions={{ presentation: "containedModal", animation: "fade_from_bottom", gestureEnabled: true, gestureDirection: "vertical" }}
+				screenOptions={{
+					presentation: "containedModal",
+					animation: "fade_from_bottom",
+					gestureEnabled: true,
+					gestureDirection: "vertical",
+					fullScreenGestureEnabled: true,
+				}}
 			>
 				{/* <Stack.Group> */}
-				<Stack.Screen
-					name='StockBook'
-					component={StockBookScreen}
-					initialParams={{ bookIndex: 0 }}
-					options={
-						{
-							// fullScreenGestureEnabled: true,
-						}
-					}
-				/>
+				<Stack.Screen name='StockBook' component={StockBookScreen} initialParams={{ bookIndex: 0 }} />
 				{/* <Stack.Screen
 				name='StockBook'
 				component={StockBookScreen}

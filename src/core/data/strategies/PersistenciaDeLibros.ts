@@ -4,14 +4,15 @@ import IStrategy from "./IStrategy";
 
 export default class PersistenciaDeLibros implements IStrategy {
 	private apiURL: string | null = null;
-	private apiAdminBooks: string = `${this.apiURL}/admin/books`;
+	private apiAdminBooks: string | null = null;
 
 	public setApiURL(apiURL: string): void {
 		this.apiURL = apiURL;
+		this.apiAdminBooks = `${this.apiURL}/admin/books`;
 	}
 
 	public async createData(stockBook: StockBook): Promise<boolean | null> {
-		if (!this.apiURL) return null;
+		if (!this.apiAdminBooks) return null;
 
 		try {
 			const bodyContent = {
@@ -42,9 +43,33 @@ export default class PersistenciaDeLibros implements IStrategy {
 		}
 	}
 	public async updateData(bookToSearch: StockBook, bookToUpdate: StockBook): Promise<boolean | null> {
-		throw new Error("Method not implemented.");
+		if (!this.apiAdminBooks) return null;
+
+		try {
+			const bodyContent = {
+				method: "PUT",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify(bookToUpdate),
+			};
+			return await fetch(`${this.apiAdminBooks}/isbn=${bookToSearch.getIsbn()}`, bodyContent).then((res) => res.ok);
+		} catch (error) {
+			console.error(error);
+			return false;
+		}
 	}
 	public async deleteData(stockBook: StockBook): Promise<boolean | null> {
-		throw new Error("Method not implemented.");
+		if (!this.apiAdminBooks) return null;
+
+		try {
+			const bodyContent = {
+				method: "DELETE",
+			};
+			return await fetch(`${this.apiAdminBooks}/${stockBook.getIsbn()}`, bodyContent).then((res) => res.ok);
+		} catch (error) {
+			console.error(error);
+			return false;
+		}
 	}
 }

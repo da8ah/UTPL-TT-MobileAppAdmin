@@ -1,10 +1,14 @@
+import AbstractRepository from "../core/data/AbstractRepository";
+import ServerDataSource from "../core/data/ServerDataSource";
 import StockBook from "../core/entities/StockBook";
 import { Cloner } from "../core/entities/utils";
+import GestionDeLibros from "../core/usecases/admin/GestionDeLibros";
 import booksViMo from "./BooksViMo";
 
-export type StockBookObserver = (stockBook: StockBook, isEditingActive: boolean) => void;
+export type StockBookObserver = (stockBook: StockBook, isEditingActive: boolean, pop: boolean) => void;
 class StockBookViMo {
 	private observer: StockBookObserver | null = null;
+	private repository: AbstractRepository | null = ServerDataSource;
 	private stockBook: StockBook = new StockBook();
 	private stockBookDraft: StockBook = new StockBook();
 	private isEditingActive: boolean = false;
@@ -35,12 +39,12 @@ class StockBookViMo {
 	public turnOnEditor() {
 		this.isEditingActive = true;
 		this.stockBookDraft = Cloner.stockBook(this.stockBook);
-		if (this.observer) this.observer(this.stockBookDraft, this.isEditingActive);
+		if (this.observer) this.observer(this.stockBookDraft, this.isEditingActive, false);
 	}
 
 	public deleteCurrentDraft() {
 		this.isEditingActive = false;
-		if (this.observer) this.observer(this.stockBook, this.isEditingActive);
+		if (this.observer) this.observer(this.stockBook, this.isEditingActive, false);
 	}
 
 	public updateDraftDate(date: Date) {
@@ -55,13 +59,26 @@ class StockBookViMo {
 
 	public updateDraft(bookUpdated: StockBook) {
 		this.stockBookDraft = bookUpdated;
-		if (this.observer) this.observer(this.stockBookDraft, this.isEditingActive);
+		if (this.observer) this.observer(this.stockBookDraft, this.isEditingActive, false);
 	}
 
 	// PERSISTANCE
-	public async deleteDataFromServer() {
-		// if (this.repository) retrievedBooks = await GestionDeLibros.(this.repository);
-		// if (retrievedBooks) this.books = retrievedBooks;
+	public async deleteDataFromServer(): Promise<boolean | null> {
+		let confirmation = null;
+		if (this.repository) confirmation = await GestionDeLibros.eliminarLibro(this.stockBook, this.repository);
+		if (confirmation && this.bookIndex !== null) {
+			const deleteFromBooks = booksViMo.removeBookByIndexFromLocalArray(this.bookIndex);
+			if (deleteFromBooks === null) await booksViMo.updateBooks();
+		}
+		if (this.observer) this.observer(this.stockBookDraft, this.isEditingActive, true);
+		return confirmation;
+	}
+
+	public async saveDataToServer() {
+		// let confirmation = null;
+		// if (this.repository) confirmation = await GestionDeLibros.actualizarLibro(this.stockBook, this.stockBookDraft, this.repository);
+		// if (confirmation) if (this.observer) this.observer(this.stockBookDraft, this.isEditingActive);
+		// return confirmation;
 	}
 }
 

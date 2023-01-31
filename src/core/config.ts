@@ -1,4 +1,4 @@
-const serverURL = "https://expressjs-bookstore.azurewebsites.net/";
+const serverURL = "https://expressjs-bookstore.azurewebsites.net";
 
 const config = {
 	URL: {
