@@ -1,18 +1,6 @@
-import {
-	Button,
-	Card,
-	Datepicker,
-	DateService,
-	I18nConfig,
-	Icon,
-	Input,
-	Layout,
-	Modal,
-	NativeDateService,
-	Text,
-	Toggle,
-} from "@ui-kitten/components";
-import { Children, useEffect, useReducer, useState } from "react";
+import Slider from "@react-native-community/slider";
+import { Button, Datepicker, I18nConfig, Icon, Input, Layout, Modal, NativeDateService, Text, Toggle } from "@ui-kitten/components";
+import { useEffect, useState } from "react";
 import { Image, StyleSheet, TouchableOpacity } from "react-native";
 import { ScrollView } from "react-native-gesture-handler";
 import StockBook from "../../core/entities/StockBook";
@@ -136,7 +124,6 @@ const BookTop = (props: {
 							<Input
 								disabled={!props.isEditionActive}
 								value={title}
-								selectionColor='black'
 								style={styles.input}
 								onChangeText={(newTitle) => {
 									setTitle(newTitle);
@@ -162,7 +149,6 @@ const BookTop = (props: {
 							<Input
 								disabled={!props.isEditionActive}
 								value={isbn}
-								selectionColor='black'
 								style={styles.input}
 								onChangeText={(newIsbn) => setIsbn(newIsbn)}
 								onEndEditing={() => {
@@ -186,7 +172,6 @@ const BookTop = (props: {
 							<Input
 								disabled={!props.isEditionActive}
 								value={author}
-								selectionColor='black'
 								style={styles.input}
 								onChangeText={(newAuthor) => setAuthor(newAuthor)}
 								onEndEditing={() => {
@@ -238,7 +223,7 @@ const BookMiddle = (props: {
 			<Layout
 				style={{
 					flex: 2,
-					backgroundColor: "gray",
+					backgroundColor: transparent,
 					flexDirection: "row",
 					justifyContent: "space-between",
 					marginHorizontal: 5,
@@ -323,6 +308,7 @@ const BookMiddle = (props: {
 			</Layout>
 			<Modal
 				visible={modalVisibility}
+				style={{ width: "70%" }}
 				backdropStyle={{ backgroundColor: "rgba(0, 0, 0, 0.5)" }}
 				onBackdropPress={() => setModalVisibility(false)}
 				children={modalChildren}
@@ -330,7 +316,7 @@ const BookMiddle = (props: {
 			<Layout style={{ flex: 4, flexDirection: "row" }}>
 				<Layout
 					style={{
-						backgroundColor: "black",
+						backgroundColor: transparent,
 						width: "70%",
 						height: "100%",
 						flexDirection: "row",
@@ -344,7 +330,7 @@ const BookMiddle = (props: {
 							checked={inOffer}
 							onChange={() => {
 								setInOffer(!inOffer);
-								props.book.setInOffer(inOffer ? inOffer : false);
+								props.book.setInOffer(inOffer);
 								stockBookViMo.updateDraft(props.book);
 							}}
 						/>
@@ -353,29 +339,43 @@ const BookMiddle = (props: {
 							checked={hasIva}
 							onChange={() => {
 								setHasIva(!hasIva);
-								props.book.setHasIva(hasIva ? hasIva : false);
+								props.book.setHasIva(hasIva);
 								stockBookViMo.updateDraft(props.book);
 							}}
 						/>
 					</Layout>
-					<Layout style={{ backgroundColor: "red", width: "30%", height: "100%", justifyContent: "space-around" }}>
+					<Layout style={{ width: "30%", height: "100%", justifyContent: "space-around" }}>
 						<Text>Descuento</Text>
 						<Text>IVA</Text>
 					</Layout>
-					<Layout style={{ width: "30%", height: "100%", justifyContent: "space-around", alignItems: "center" }}>
-						<Button
-							disabled={!props.isEditionActive}
-							size="tiny"
-							onPress={() => {
-								setModalChildren(<ModalDiscount setModalVisibility={setModalVisibility} />);
-								setModalVisibility(true);
-							}}
-						>
-							{inOffer ? discountPercentage : "0"}
-						</Button>
-						<Button disabled={true} size="tiny">
-							{hasIva ? "12" : "0"}
-						</Button>
+					<Layout style={{ width: "30%", height: "100%", justifyContent: "space-around", alignItems: "flex-start" }}>
+						<Layout style={{ flexDirection: "row" }}>
+							<Text style={{ textAlignVertical: "center" }}> % </Text>
+							<Button
+								disabled={!(props.isEditionActive && inOffer)}
+								size="small"
+								onPress={() => {
+									setModalChildren(
+										<ModalDiscount
+											isEditionActive={props.isEditionActive}
+											setModalVisibility={setModalVisibility}
+											discountPercentage={discountPercentage || 1}
+											setDiscountPercentage={setDiscountPercentage}
+											book={props.book}
+										/>,
+									);
+									setModalVisibility(true);
+								}}
+							>
+								{inOffer ? discountPercentage || "1" : "0"}
+							</Button>
+						</Layout>
+						<Layout style={{ flexDirection: "row" }}>
+							<Text style={{ textAlignVertical: "center" }}> % </Text>
+							<Button disabled={!hasIva} size="small" status={!hasIva ? undefined : "danger"}>
+								{hasIva ? "12" : "0"}
+							</Button>
+						</Layout>
 					</Layout>
 				</Layout>
 				<Layout style={{ width: "30%", justifyContent: "space-around", alignItems: "flex-end" }}>
@@ -390,6 +390,7 @@ const BookMiddle = (props: {
 										setModalVisibility={setModalVisibility}
 										grossPricePerUnit={grossPricePerUnit || 0}
 										setGrossPricePerUnit={setGrossPricePerUnit}
+										book={props.book}
 									/>,
 								);
 								setModalVisibility(true);
@@ -400,7 +401,22 @@ const BookMiddle = (props: {
 						<Text style={{ textAlignVertical: "center", fontSize: 25 }}> 💲</Text>
 					</Layout>
 					<Layout style={{ flexDirection: "row" }}>
-						<Button disabled={!props.isEditionActive} size="small" onPress={() => setModalVisibility(true)}>
+						<Button
+							disabled={!props.isEditionActive}
+							size="small"
+							onPress={() => {
+								setModalChildren(
+									<ModalStock
+										isEditionActive={props.isEditionActive}
+										setModalVisibility={setModalVisibility}
+										stock={stock || 0}
+										setStock={setStock}
+										book={props.book}
+									/>,
+								);
+								setModalVisibility(true);
+							}}
+						>
 							{stock || ""}
 						</Button>
 						<Text style={{ textAlignVertical: "center", fontSize: 25 }}> 📦</Text>
@@ -410,42 +426,170 @@ const BookMiddle = (props: {
 		</Layout>
 	);
 };
-const ModalDiscount = (props: { setModalVisibility: React.Dispatch<React.SetStateAction<boolean>> }) => (
-	<Card disabled={true}>
-		<Text>Cambiar porcentaje de Descuento</Text>
-		<Button onPress={() => props.setModalVisibility(false)}>DISMISS</Button>
-	</Card>
-);
+const ModalDiscount = (props: {
+	isEditionActive: boolean;
+	setModalVisibility: (value: boolean) => void;
+	discountPercentage: number;
+	setDiscountPercentage: (value: number) => void;
+	book: StockBook;
+}) => {
+	const [percentage, setPercentage] = useState(props.discountPercentage);
+	const [amount, setAmount] = useState(0);
+	const price = props.book.getGrossPricePerUnit();
+
+	const calcAmount = (price: number, percentage: number) => (percentage * price) / 100;
+
+	return (
+		<Layout style={{ alignItems: "center", padding: 20, borderRadius: 20 }}>
+			<Layout style={{ width: "100%", flexDirection: "row", justifyContent: "space-between" }}>
+				<Text>Descuento de {percentage}% equivale a $ </Text>
+				<Text style={{ textAlign: "left" }}>-{amount.toFixed(2)}</Text>
+			</Layout>
+			<Slider
+				style={{ width: "100%", height: 40, marginVertical: 20 }}
+				value={percentage}
+				step={1}
+				minimumValue={1}
+				maximumValue={100}
+				onValueChange={(value) => {
+					setAmount(calcAmount(price || 1, Math.round(value)));
+					setPercentage(Math.round(value));
+				}}
+			/>
+			<Button
+				size="small"
+				style={{ width: "50%" }}
+				onPress={() => {
+					props.setDiscountPercentage(percentage);
+					props.book.setDiscountPercentage(props.discountPercentage);
+					stockBookViMo.updateDraft(props.book);
+					props.setModalVisibility(false);
+				}}
+			>
+				Confirmar
+			</Button>
+		</Layout>
+	);
+};
 const ModalPrice = (props: {
 	isEditionActive: boolean;
 	setModalVisibility: (value: boolean) => void;
 	grossPricePerUnit: number;
 	setGrossPricePerUnit: (value: number) => void;
-}) => (
-	<Layout style={{ alignItems: "center", padding: 20, borderRadius: 20 }}>
-		<Text>Ingresar nuevo % de Descuento</Text>
-		<Input
-			disabled={!props.isEditionActive}
-			size="small"
-			cursorColor='black'
-			style={{ marginVertical: 20 }}
-			selectTextOnFocus
-			defaultValue={props.grossPricePerUnit.toString()}
-			onChangeText={(newPrice) => {
-				const parsed = Number.parseFloat(newPrice);
-				if (parsed) props.setGrossPricePerUnit(parsed);
-				else props.setGrossPricePerUnit(props.grossPricePerUnit);
-			}}
-			// onEndEditing={() => {
-			// 	props.book.setIsbn(isbn || "");
-			// 	stockBookViMo.updateDraft(props.book);
-			// }}
-		/>
-		<Button size="small" style={{ width: "30%" }} onPress={() => props.setModalVisibility(false)}>
-			OK
-		</Button>
-	</Layout>
-);
+	book: StockBook;
+}) => {
+	const [parteEntera, setParteEntera] = useState(props.grossPricePerUnit.toFixed(2).split(".")[0]);
+	const [parteDecimal, setParteDecimal] = useState(props.grossPricePerUnit.toFixed(2).split(".")[1]);
+
+	return (
+		<Layout style={{ alignItems: "center", padding: 20, borderRadius: 20 }}>
+			<Layout style={{ flexDirection: "row", justifyContent: "center" }}>
+				<Text style={{ width: "25%", textAlign: "right" }}>Precio $</Text>
+				<Text style={{ width: "20%", textAlign: "right" }}>
+					{parteEntera}.{parteDecimal}
+				</Text>
+			</Layout>
+			<Layout style={{ flexDirection: "row", marginVertical: 20 }}>
+				<Input
+					selectTextOnFocus
+					disabled={!props.isEditionActive}
+					keyboardType="phone-pad"
+					size="small"
+					textAlign="center"
+					cursorColor='black'
+					defaultValue={parteEntera}
+					value={parteEntera}
+					onChangeText={(newInt) => {
+						if (newInt.length >= 0 && newInt.length <= 3) {
+							if (!(Number.isNaN(Number(newInt)) || newInt.includes("."))) setParteEntera(newInt);
+						}
+					}}
+				/>
+				<Text style={{ textAlignVertical: "bottom" }}> . </Text>
+				<Input
+					selectTextOnFocus
+					disabled={!props.isEditionActive}
+					keyboardType="phone-pad"
+					size="small"
+					textAlign="center"
+					cursorColor='black'
+					defaultValue={parteDecimal}
+					value={parteDecimal}
+					onChangeText={(newFloat) => {
+						if (newFloat.length >= 0 && newFloat.length <= 2) {
+							if (!(Number.isNaN(Number(newFloat)) || newFloat.includes("."))) setParteDecimal(newFloat);
+						}
+					}}
+				/>
+			</Layout>
+			<Button
+				size="small"
+				style={{ width: "50%" }}
+				onPress={() => {
+					const parse = Number(`${parteEntera}.${parteDecimal}`);
+					if (!Number.isNaN(parse)) {
+						props.setGrossPricePerUnit(parse);
+						props.book.setGrossPricePerUnit(props.grossPricePerUnit);
+						stockBookViMo.updateDraft(props.book);
+						props.setModalVisibility(false);
+					}
+				}}
+			>
+				Confirmar
+			</Button>
+		</Layout>
+	);
+};
+const ModalStock = (props: {
+	isEditionActive: boolean;
+	setModalVisibility: (value: boolean) => void;
+	stock: number;
+	setStock: (value: number) => void;
+	book: StockBook;
+}) => {
+	const [cant, setCant] = useState(props.stock.toFixed());
+
+	return (
+		<Layout style={{ alignItems: "center", padding: 20, borderRadius: 20 }}>
+			<Layout style={{ flexDirection: "row", justifyContent: "center" }}>
+				<Text style={{ textAlign: "right" }}>Cantidad de Artículos</Text>
+				<Text style={{ width: "20%", textAlign: "center" }}>{Number(cant) !== 0 ? cant : "0"}</Text>
+			</Layout>
+			<Layout style={{ marginVertical: 20 }}>
+				<Input
+					selectTextOnFocus
+					disabled={!props.isEditionActive}
+					keyboardType="phone-pad"
+					size="small"
+					textAlign="center"
+					cursorColor='black'
+					defaultValue={cant}
+					value={cant}
+					onChangeText={(newCant) => {
+						if (newCant.length >= 0 && newCant.length <= 4) {
+							if (!(Number.isNaN(Number(newCant)) || newCant.includes("."))) setCant(newCant);
+						}
+					}}
+				/>
+			</Layout>
+			<Button
+				size="small"
+				style={{ width: "50%" }}
+				onPress={() => {
+					const parse = Number(cant);
+					if (!Number.isNaN(parse)) {
+						props.setStock(parse);
+						props.book.setStock(props.stock);
+						stockBookViMo.updateDraft(props.book);
+						props.setModalVisibility(false);
+					}
+				}}
+			>
+				Confirmar
+			</Button>
+		</Layout>
+	);
+};
 
 const BookBottom = (props: { book: StockBook; isEditionActive: boolean }) => {
 	const [description, setDescription] = useState(props.book.getDescription());
@@ -466,7 +610,6 @@ const BookBottom = (props: { book: StockBook; isEditionActive: boolean }) => {
 					multiline
 					disabled={!props.isEditionActive}
 					value={description}
-					selectionColor='black'
 					textStyle={{ height: 100 }}
 					style={[
 						styles.input,
@@ -519,11 +662,9 @@ const BookBottom = (props: { book: StockBook; isEditionActive: boolean }) => {
 				/>
 			</Layout>
 			<Layout>
-				<Text style={{ fontSize: 10, fontStyle: "italic", textAlign: "right" }}>{`(Fecha de creación del registro: ${Intl.DateTimeFormat("es-ec", {
-					year: "numeric",
-					month: "2-digit",
-					day: "2-digit",
-				}).format(
+				<Text style={{ fontSize: 10, fontStyle: "italic", textAlign: "right" }}>{`(Fecha de creación del registro: ${Intl.DateTimeFormat(
+					"en-US",
+				).format(
 					dateSplitted !== undefined
 						? new Date(Number.parseInt(dateSplitted[0]), Number.parseInt(dateSplitted[1]) - 1, Number.parseInt(dateSplitted[2]))
 						: new Date(2000, 0, 1),
@@ -561,13 +702,14 @@ const StockBookScreen = ({ route }: StockBookScreenProps) => {
 	);
 };
 
+const transparent = "transparent";
 const styles = StyleSheet.create({
 	common: {
 		width: "100%",
 		justifyContent: "center",
 		textAlign: "center",
 	},
-	container: { backgroundColor: "black", flex: 1, paddingTop: 10 },
+	container: { flex: 1, paddingTop: 10 },
 	header: {
 		backgroundColor: "black",
 		zIndex: 0,
@@ -577,9 +719,9 @@ const styles = StyleSheet.create({
 		color: "white",
 	},
 	body: { flex: 9, width: "100%" },
-	bodyTop: { zIndex: 1, flex: 6, backgroundColor: "gold", padding: 5 },
-	bodyMiddle: { zIndex: 0, flex: 3, backgroundColor: "blue", padding: 5 },
-	bodyBottom: { zIndex: 1, flex: 6, backgroundColor: "black", justifyContent: "space-around", padding: 5 },
+	bodyTop: { zIndex: 1, flex: 6, backgroundColor: transparent, padding: 5 },
+	bodyMiddle: { zIndex: 0, flex: 3, backgroundColor: transparent, padding: 5 },
+	bodyBottom: { zIndex: 1, flex: 6, backgroundColor: transparent, justifyContent: "space-around", padding: 5 },
 	topLeftPanel: {
 		backgroundColor: "gainsboro",
 		width: "35%",
@@ -589,7 +731,7 @@ const styles = StyleSheet.create({
 		borderRadius: 10,
 		marginHorizontal: 5,
 	},
-	topRightPanel: { backgroundColor: "red", width: "60%", height: 250, justifyContent: "space-around" },
+	topRightPanel: { backgroundColor: transparent, width: "60%", height: 250, justifyContent: "space-around" },
 	inputLayout: { justifyContent: "center" },
 	inputTitle: {
 		backgroundColor: "darkgrey",
@@ -601,8 +743,9 @@ const styles = StyleSheet.create({
 	},
 	input: {
 		width: "100%",
-		borderRadius: 0,
-		borderWidth: 0,
+		borderTopRightRadius: 10,
+		borderBottomRightRadius: 10,
+		borderWidth: 1,
 		borderBottomWidth: 2,
 		borderColor: "darkgrey",
 	},
