@@ -2,7 +2,9 @@ import { NativeStackScreenProps } from "@react-navigation/native-stack";
 
 export type RootStackParamList = {
 	MainTabs: undefined;
-	StockBook: { bookIndex: number };
+	NewStockBook: undefined;
+	StockBook?: { bookIndex: number };
 };
 
+export type NewStockBookScreenProps = NativeStackScreenProps<RootStackParamList, "NewStockBook">;
 export type StockBookScreenProps = NativeStackScreenProps<RootStackParamList, "StockBook">;

@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { StyleSheet } from "react-native";
 import StockBook from "../../core/entities/StockBook";
 import booksViMo, { BooksObserver } from "../../viewmodel/BooksViMo";
+import AddButtonOverlay from "./components/AddButtonOverlay";
 import SearchBar from "./components/SearchBar";
 import StockBookCard from "./components/StockBookCard";
 
@@ -60,14 +61,13 @@ const BooksLayout = () => {
 	);
 };
 
-const BooksScreen = () => {
-	return (
-		<Layout style={{ flex: 1 }}>
-			<SearchBarLayout />
-			<BooksLayout />
-		</Layout>
-	);
-};
+const BooksScreen = () => (
+	<Layout style={{ flex: 1 }}>
+		<SearchBarLayout />
+		<BooksLayout />
+		<AddButtonOverlay />
+	</Layout>
+);
 
 const styles = StyleSheet.create({
 	common: {

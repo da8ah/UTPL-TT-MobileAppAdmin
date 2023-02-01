@@ -1,5 +1,6 @@
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import NewStockBookScreen from "../books/NewStockBookScreen";
 import StockBookScreen from "../books/StockBookScreen";
 import { RootStackParamList } from "../ScreenTypes";
 import MainTabsNav from "./components/MainTabsNav";
@@ -18,19 +19,9 @@ const MainNavigator = () => (
 					animationTypeForReplace: "pop",
 				}}
 			>
-				{/* <Stack.Group> */}
-				<Stack.Screen name='StockBook' component={StockBookScreen} initialParams={{ bookIndex: 0 }} />
-				{/* <Stack.Screen
-				name='StockBook'
-				component={StockBookScreen}
-				initialParams={{ bookid: 0 }}
-				options={{
-					presentation: "modal",
-					headerShown: true,
-					headerTitle: "StockBook",
-					headerTitleAlign: "center",
-				}}
-			/> */}
+				{/* MODALS */}
+				<Stack.Screen name='NewStockBook' component={NewStockBookScreen} />
+				<Stack.Screen name='StockBook' component={StockBookScreen} />
 			</Stack.Group>
 		</Stack.Navigator>
 	</NavigationContainer>
