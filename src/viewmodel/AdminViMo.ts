@@ -24,8 +24,7 @@ class AdminViMo {
 
 	public async login(adminToSearch?: Admin) {
 		let adminFound;
-		if (this.repository && adminToSearch?.getUser() !== undefined && adminToSearch?.getPassword() !== undefined)
-			adminFound = await GestionDeAdmin.iniciarSesion(adminToSearch, this.repository);
+		if (this.repository) adminFound = await GestionDeAdmin.iniciarSesion(adminToSearch || new Admin(), this.repository);
 		if (adminFound) this.admin = adminFound;
 	}
 

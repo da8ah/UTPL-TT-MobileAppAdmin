@@ -13,17 +13,16 @@ export default class GestionDeAdmin {
 	public static async iniciarSesion(admin: Admin, repository: AbstractRepository): Promise<Admin | null> {
 		try {
 			const secureStorage = LocalSecureStorage;
-			const token = (await secureStorage?.readData({ key: config.LSS.AUTH_KEY })) || null;
+			let token = null;
+			if (!admin || (admin?.getUser() === undefined && admin?.getPassword() === undefined)) {
+				token = await secureStorage?.readData({ key: config.LSS.AUTH_KEY });
+			}
 			const data = { token, admin };
 			const repo = repository as ServerDataSource;
 			repo.setStrategy(new PersistenciaDeAdmin());
 			const resultado = <{ token: string | null; admin: Admin | null }>await repo.readData(data);
 			if (!resultado.token && resultado.admin) return resultado.admin;
-			if (resultado.token) {
-				const secureStorage = LocalSecureStorage;
-				const tokenSavedConfirmation = await secureStorage?.createData({ key: config.LSS.AUTH_KEY, value: resultado.token });
-				console.log(tokenSavedConfirmation);
-			}
+			if (resultado.token) await secureStorage?.createData({ key: config.LSS.AUTH_KEY, value: resultado.token });
 			return resultado.admin ? resultado.admin : null;
 		} catch (error) {
 			console.error(error);

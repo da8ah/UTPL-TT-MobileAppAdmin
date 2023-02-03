@@ -23,6 +23,7 @@ export default class PersistenciaDeAdmin implements IStrategy {
 			let token = null;
 			let admin = null;
 
+			// Token already saved - Returns Admin
 			if (data.token) {
 				const httpContent = {
 					method: "GET",
@@ -36,6 +37,7 @@ export default class PersistenciaDeAdmin implements IStrategy {
 				return { token: null, admin };
 			}
 
+			// Token not saved - Returns Token & Admin
 			if (data?.admin?.getUser() !== undefined && data?.admin?.getPassword() !== undefined) {
 				const httpContent = {
 					method: "POST",
@@ -52,6 +54,8 @@ export default class PersistenciaDeAdmin implements IStrategy {
 					.then((body) => (admin = AdminConverter.jsonToAdmin(body)));
 				return { token, admin };
 			}
+
+			// Otherwise returns both null
 			return { token: null, admin: null };
 		} catch (error) {
 			console.error(error);

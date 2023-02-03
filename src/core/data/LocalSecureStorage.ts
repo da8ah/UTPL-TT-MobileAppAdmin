@@ -2,6 +2,7 @@ import * as SecureStore from "expo-secure-store";
 import AbstractRepository from "./AbstractRepository";
 
 export class LocalSecureStorage extends AbstractRepository {
+	private static secureStorage: LocalSecureStorage | null = null;
 	private jwt = null;
 
 	// SINGLETON
@@ -10,9 +11,12 @@ export class LocalSecureStorage extends AbstractRepository {
 	}
 
 	public static getInstance(): LocalSecureStorage | null {
-		const repository = AbstractRepository.getRepository();
-		if (!repository) AbstractRepository.setRepository(new LocalSecureStorage() as LocalSecureStorage);
-		return AbstractRepository.getRepository() as LocalSecureStorage;
+		const lss = LocalSecureStorage.getSecureStorage();
+		if (!lss) this.secureStorage = new LocalSecureStorage();
+		return LocalSecureStorage.getSecureStorage();
+	}
+	protected static getSecureStorage(): LocalSecureStorage | null {
+		return this.secureStorage;
 	}
 
 	public async createData(data: { key: string; value: string }): Promise<boolean | null> {
@@ -28,12 +32,10 @@ export class LocalSecureStorage extends AbstractRepository {
 		}
 	}
 	public async readData(data: { key: string }): Promise<string | null> {
-		if (!(await SecureStore.isAvailableAsync())) return null;
+		if (!((await SecureStore.isAvailableAsync()) && data.key)) return null;
 
 		try {
 			const item = await SecureStore.getItemAsync(data.key);
-			console.log(item);
-
 			return item;
 		} catch (error) {
 			console.error(error);
