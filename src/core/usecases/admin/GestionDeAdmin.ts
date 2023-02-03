@@ -30,6 +30,17 @@ export default class GestionDeAdmin {
 		}
 	}
 
+	public static async cerrarSesion(): Promise<boolean | null> {
+		try {
+			const secureStorage = LocalSecureStorage;
+			const confirmation = await secureStorage?.deleteData({ key: config.LSS.AUTH_KEY });
+			return confirmation ? confirmation : false;
+		} catch (error) {
+			console.error(error);
+			return null;
+		}
+	}
+
 	public async actualizarCuenta(adminToSearch: Admin, adminToUpdate: Admin, repository: AbstractRepository): Promise<boolean | null> {
 		throw new Error("Method not implemented.");
 	}

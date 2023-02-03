@@ -5,7 +5,7 @@ import serverDataSource from "../core/data/ServerDataSource";
 import Admin from "../core/entities/Admin";
 import GestionDeAdmin from "../core/usecases/admin/GestionDeAdmin";
 
-export type AdminObserver = (admin: Admin) => void;
+export type AdminObserver = (authState: boolean) => void;
 class AdminViMo {
 	private observer: AdminObserver | null = null;
 	private repository: AbstractRepository | null = ServerDataSource;
@@ -29,11 +29,16 @@ class AdminViMo {
 	}
 
 	public async logout() {
-		// Implementar logout
-	}
-
-	public async update() {
-		if (this.observer && this.admin) this.observer(this.admin);
+		const confirmation = await GestionDeAdmin.cerrarSesion();
+		if (confirmation) {
+			this.admin.setUser("");
+			this.admin.setName("");
+			this.admin.setEmail("");
+			this.admin.setMobile("");
+			this.admin.setPassword("");
+			this.admin = new Admin();
+		}
+		if (this.observer) this.observer(false);
 	}
 }
 

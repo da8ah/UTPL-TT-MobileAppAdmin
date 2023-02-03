@@ -11,7 +11,7 @@ const ProfileTop = () => (
 		<TouchableOpacity disabled style={{ backgroundColor: "black", borderRadius: 100, padding: 15, opacity: 0.7 }}>
 			<AddUserIcon />
 		</TouchableOpacity>
-		<TouchableOpacity style={{ backgroundColor: "darkred", borderRadius: 100, padding: 15 }}>
+		<TouchableOpacity style={{ backgroundColor: "darkred", borderRadius: 100, padding: 15 }} onPress={() => adminViMo.logout()}>
 			<LogOutIcon />
 		</TouchableOpacity>
 	</Layout>

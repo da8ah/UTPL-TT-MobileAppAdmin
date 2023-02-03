@@ -1,12 +1,12 @@
 import { Layout, Text } from "@ui-kitten/components";
 import { lazy, Suspense, useEffect, useState } from "react";
 import { ActivityIndicator, StyleSheet } from "react-native";
-import adminViMo from "../../viewmodel/AdminViMo";
+import adminViMo, { AdminObserver } from "../../viewmodel/AdminViMo";
 
 const LoadingAlert = () => (
 	<Layout style={styles.container}>
-		<Text status='warning' appearance='hint' style={{ fontSize: 10, fontStyle: "italic", textTransform: "uppercase" }}>
-			Loading
+		<Text status='info' appearance='hint' style={{ fontSize: 10, fontStyle: "italic", textTransform: "uppercase" }}>
+			BookStore Manager
 		</Text>
 		<ActivityIndicator />
 	</Layout>
@@ -19,18 +19,24 @@ const AuthNavigator = () => {
 	const [isAuth, setAuth] = useState<boolean>(false);
 	const [loginAttempts, setLoginAttempts] = useState(0);
 
+	const displayDataRetrieved: AdminObserver = (authState: boolean) => {
+		setAuth(authState);
+	};
+
 	const tryLogin = async () => {
 		await adminViMo.login();
 		if (adminViMo.getAdmin()?.getUser()) setAuth(true);
 	};
 
 	useEffect(() => {
+		adminViMo.attach(displayDataRetrieved);
 		setLoginAttempts(1);
 		tryLogin();
 		setTimeout(async () => {
 			if (!isAuth) tryLogin();
 			setLoginAttempts(2);
 		}, 2000);
+		return () => adminViMo.detach();
 	}, []);
 
 	return !isAuth ? (
