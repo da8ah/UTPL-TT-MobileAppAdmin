@@ -28,6 +28,10 @@ class AdminViMo {
 		if (adminFound) this.admin = adminFound;
 	}
 
+	public async logout() {
+		// Implementar logout
+	}
+
 	public async update() {
 		if (this.observer && this.admin) this.observer(this.admin);
 	}

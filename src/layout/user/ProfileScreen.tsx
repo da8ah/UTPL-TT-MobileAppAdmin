@@ -1,12 +1,18 @@
 import { Button, Icon, Input, Layout, Text } from "@ui-kitten/components";
 import { useEffect, useState } from "react";
 import { KeyboardAvoidingView, StyleSheet, TouchableOpacity } from "react-native";
+import Admin from "../../core/entities/Admin";
+import adminViMo, { AdminObserver } from "../../viewmodel/AdminViMo";
 
 const AddUserIcon = () => <Icon name="person-add" fill="white" height="30" width="30" />;
+const LogOutIcon = () => <Icon name="close" fill="white" height="30" width="30" />;
 const ProfileTop = () => (
 	<Layout style={[styles.common, styles.topLayout]}>
 		<TouchableOpacity disabled style={{ backgroundColor: "black", borderRadius: 100, padding: 15, opacity: 0.7 }}>
 			<AddUserIcon />
+		</TouchableOpacity>
+		<TouchableOpacity style={{ backgroundColor: "darkred", borderRadius: 100, padding: 15 }}>
+			<LogOutIcon />
 		</TouchableOpacity>
 	</Layout>
 );
@@ -16,25 +22,45 @@ const ProfileMiddle = (props: { isEditionActive: boolean }) => (
 		<KeyboardAvoidingView style={{ width: "100%", alignItems: "center" }}>
 			<Layout>
 				<Icon name="person-outline" fill="black" height="100" width="100" />
-				<Text style={{ fontSize: 30, fontFamily: "serif", fontStyle: "italic" }}>Admin</Text>
+				<Text style={{ fontSize: 30, fontFamily: "serif", fontStyle: "italic", textAlign: "center", textTransform: "uppercase" }}>
+					{adminViMo.getAdmin().getUser()}
+				</Text>
 			</Layout>
 			<Layout style={styles.inputLayout}>
 				<Layout style={[styles.inputTitle, { borderTopLeftRadius: 10 }]}>
 					<Text adjustsFontSizeToFit>Nombre</Text>
 				</Layout>
-				<Input disabled={!props.isEditionActive} editable={props.isEditionActive} selectionColor='black' style={styles.input} />
+				<Input
+					value={adminViMo.getAdmin().getName()}
+					disabled={!props.isEditionActive}
+					editable={props.isEditionActive}
+					selectionColor='black'
+					style={styles.input}
+				/>
 			</Layout>
 			<Layout style={styles.inputLayout}>
 				<Layout style={styles.inputTitle}>
 					<Text adjustsFontSizeToFit>Email</Text>
 				</Layout>
-				<Input disabled={!props.isEditionActive} editable={props.isEditionActive} selectionColor='black' style={styles.input} />
+				<Input
+					value={adminViMo.getAdmin().getEmail()}
+					disabled={!props.isEditionActive}
+					editable={props.isEditionActive}
+					selectionColor='black'
+					style={styles.input}
+				/>
 			</Layout>
 			<Layout style={styles.inputLayout}>
 				<Layout style={[styles.inputTitle, { borderBottomLeftRadius: 10 }]}>
 					<Text adjustsFontSizeToFit>Móvil</Text>
 				</Layout>
-				<Input disabled={!props.isEditionActive} editable={props.isEditionActive} selectionColor='black' style={styles.input} />
+				<Input
+					value={adminViMo.getAdmin().getMobile()}
+					disabled={!props.isEditionActive}
+					editable={props.isEditionActive}
+					selectionColor='black'
+					style={styles.input}
+				/>
 			</Layout>
 		</KeyboardAvoidingView>
 	</Layout>
@@ -46,27 +72,27 @@ const SaveIcon = () => <Icon name="save" fill="white" height="30" width="30" />;
 const ProfileBottom = (props: { editionState: boolean; setEditionState: (value: boolean) => void }) => (
 	<Layout style={[styles.common, styles.bottomLayout]}>
 		<Button
+			disabled={true}
 			status={props.editionState ? "basic" : "warning"}
 			size="tiny"
 			accessoryLeft={EditIcon}
 			style={{ width: "30%" }}
-			disabled={props.editionState}
 			onPress={() => props.setEditionState(true)}
 		/>
 		<Button
+			disabled={true}
 			status={props.editionState ? "danger" : "basic"}
 			size="tiny"
 			accessoryLeft={SlashIcon}
 			style={{ width: "30%" }}
-			disabled={!props.editionState}
 			onPress={() => props.setEditionState(false)}
 		/>
 		<Button
+			disabled={true}
 			status={props.editionState ? "success" : "basic"}
 			size="tiny"
 			accessoryLeft={SaveIcon}
 			style={{ width: "30%" }}
-			disabled={!props.editionState}
 			onPress={() => props.setEditionState(false)}
 		/>
 	</Layout>
@@ -96,7 +122,14 @@ const styles = StyleSheet.create({
 		textAlign: "center",
 	},
 	container: { flex: 1, paddingTop: 10, paddingHorizontal: 5 },
-	topLayout: { flex: 1, backgroundColor: transparent, alignItems: "flex-end", paddingHorizontal: 15 },
+	topLayout: {
+		flex: 1,
+		backgroundColor: transparent,
+		flexDirection: "row",
+		justifyContent: "space-between",
+		alignItems: "center",
+		paddingHorizontal: 15,
+	},
 	middleLayout: { flex: 5, backgroundColor: transparent, justifyContent: "space-around", alignItems: "center", padding: 5 },
 	bottomLayout: { flex: 2, backgroundColor: transparent, flexDirection: "row", justifyContent: "space-around", alignItems: "center" },
 	inputLayout: { width: "70%", height: 40, maxHeight: 40, flexDirection: "row", justifyContent: "center", marginVertical: 10 },
