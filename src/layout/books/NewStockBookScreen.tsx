@@ -261,9 +261,9 @@ const BookMiddle = (props: {
 							}}
 						>
 							{!props.isEditionActive ? (
-								<Icon name="clock-outline" fill={recent ? "darkred" : "darkgray"} height="35" width="35" />
+								<Icon name="clock-outline" fill={recent ? "tomato" : "darkgray"} height="35" width="35" />
 							) : (
-								<Icon name="clock" fill={recent ? "darkred" : "darkgray"} height="35" width="35" />
+								<Icon name="clock" fill={recent ? "tomato" : "darkgray"} height="35" width="35" />
 							)}
 						</TouchableOpacity>
 					</Layout>
@@ -297,9 +297,9 @@ const BookMiddle = (props: {
 							}}
 						>
 							{!props.isEditionActive ? (
-								<Icon name="checkmark-circle-2-outline" fill={recommended ? "darkgreen" : "darkgray"} height="35" width="35" />
+								<Icon name="checkmark-circle-2-outline" fill={recommended ? "greenyellow" : "darkgray"} height="35" width="35" />
 							) : (
-								<Icon name="checkmark-circle-2" fill={recommended ? "darkgreen" : "darkgray"} height="35" width="35" />
+								<Icon name="checkmark-circle-2" fill={recommended ? "greenyellow" : "darkgray"} height="35" width="35" />
 							)}
 						</TouchableOpacity>
 					</Layout>

@@ -2,6 +2,8 @@ import { Button, Icon, Input, Layout, Text } from "@ui-kitten/components";
 import { TouchableWithoutFeedback } from "@ui-kitten/components/devsupport";
 import { useState } from "react";
 import { KeyboardAvoidingView, StyleSheet } from "react-native";
+import Admin from "../../core/entities/Admin";
+import adminViMo from "../../viewmodel/AdminViMo";
 
 const LoginScreenHeader = () => (
 	<Layout style={[styles.common, styles.header]}>
@@ -14,7 +16,8 @@ const LoginScreenHeader = () => (
 	</Layout>
 );
 
-const InputWithPassword = () => {
+// rome-ignore lint/suspicious/noExplicitAny: <explanation>
+const InputWithPassword = (props: { setPassword: any }) => {
 	const [inputValue, setInputValue] = useState("");
 	const [secureTextEntry, setSecureTextEntry] = useState(true);
 
@@ -36,44 +39,61 @@ const InputWithPassword = () => {
 			value={inputValue}
 			accessoryRight={PasswordVisibilityIcon}
 			secureTextEntry={secureTextEntry}
-			onChangeText={(nextValue) => setInputValue(nextValue)}
+			onChangeText={(nextValue) => {
+				setInputValue(nextValue);
+				props.setPassword(nextValue);
+			}}
 		/>
 	);
 };
 
 const ButtonIcon = () => <Icon name="log-in" fill="white" height="20" width="20" />;
-const LoginScreenBody = () => (
-	<Layout style={[styles.common, styles.body]}>
-		<Layout style={[styles.common, { marginVertical: 20 }]}>
-			<Icon name="people" fill="black" height="100" width="100" />
-			<Text style={{ fontSize: 30, fontFamily: "serif", fontStyle: "italic" }}>Admin</Text>
-		</Layout>
-		<KeyboardAvoidingView style={{ width: "100%", alignItems: "center" }} behavior="padding">
-			<Layout style={styles.inputLayout}>
-				<Layout style={[styles.inputTitle, { borderTopLeftRadius: 10 }]}>
-					<Text adjustsFontSizeToFit>USUARIO</Text>
-				</Layout>
-				<Input selectionColor='black' style={styles.input} />
-			</Layout>
-			<Layout style={styles.inputLayout}>
-				<Layout style={[styles.inputTitle, { borderBottomLeftRadius: 10 }]}>
-					<Text adjustsFontSizeToFit>CLAVE</Text>
-				</Layout>
-				<InputWithPassword />
-			</Layout>
-			<Layout style={styles.buttonLayout}>
-				<Button style={styles.button} accessoryRight={ButtonIcon}>
-					INICIAR SESIÓN
-				</Button>
-			</Layout>
-		</KeyboardAvoidingView>
-	</Layout>
-);
+// rome-ignore lint/suspicious/noExplicitAny: <explanation>
+const LoginScreenBody = (props: { setAuth: any }) => {
+	const [user, setUser] = useState<string>();
+	const [password, setPassword] = useState<string>();
 
-const LoginScreen = () => (
+	return (
+		<Layout style={[styles.common, styles.body]}>
+			<Layout style={[styles.common, { marginVertical: 20 }]}>
+				<Icon name="people" fill="black" height="100" width="100" />
+				<Text style={{ fontSize: 30, fontFamily: "serif", fontStyle: "italic" }}>Admin</Text>
+			</Layout>
+			<KeyboardAvoidingView style={{ width: "100%", alignItems: "center" }} behavior="padding">
+				<Layout style={styles.inputLayout}>
+					<Layout style={[styles.inputTitle, { borderTopLeftRadius: 10 }]}>
+						<Text adjustsFontSizeToFit>USUARIO</Text>
+					</Layout>
+					<Input selectionColor='black' style={styles.input} onChangeText={(newUser) => setUser(newUser)} />
+				</Layout>
+				<Layout style={styles.inputLayout}>
+					<Layout style={[styles.inputTitle, { borderBottomLeftRadius: 10 }]}>
+						<Text adjustsFontSizeToFit>CLAVE</Text>
+					</Layout>
+					<InputWithPassword setPassword={setPassword} />
+				</Layout>
+				<Layout style={styles.buttonLayout}>
+					<Button
+						style={styles.button}
+						accessoryRight={ButtonIcon}
+						onPress={async () => {
+							await adminViMo.login(new Admin(user?.trim(), undefined, undefined, undefined, password));
+							if (adminViMo.getAdmin()?.getUser() !== undefined) props.setAuth(true);
+						}}
+					>
+						INICIAR SESIÓN
+					</Button>
+				</Layout>
+			</KeyboardAvoidingView>
+		</Layout>
+	);
+};
+
+// rome-ignore lint/suspicious/noExplicitAny: <explanation>
+const LoginScreen = (props: { setAuth: any }) => (
 	<Layout style={[styles.common, styles.container]}>
 		<LoginScreenHeader />
-		<LoginScreenBody />
+		<LoginScreenBody setAuth={props.setAuth} />
 	</Layout>
 );
 

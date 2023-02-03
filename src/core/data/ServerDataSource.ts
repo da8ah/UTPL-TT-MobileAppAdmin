@@ -33,9 +33,9 @@ export class ServerDataSource extends AbstractRepository {
 			return null;
 		}
 	}
-	public async readData(): Promise<Object | [] | null> {
+	public async readData(data?: Object): Promise<Object | [] | null> {
 		try {
-			if (this.apiURL) return !this.strategy ? null : this.strategy.readData();
+			if (this.apiURL) return !this.strategy ? null : this.strategy.readData(data);
 			return null;
 		} catch (error) {
 			console.error(error);

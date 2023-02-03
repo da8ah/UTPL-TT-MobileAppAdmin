@@ -15,7 +15,7 @@ export default abstract class AbstractRepository {
 	}
 
 	public abstract createData(data: Object): Promise<boolean | null>;
-	public abstract readData(): Promise<Object | [] | null>;
+	public abstract readData(data?: Object): Promise<Object | [] | null>;
 	public abstract updateData(dataToSearch: Object, dataToUpdate: Object): Promise<boolean | null>;
 	public abstract deleteData(data: Object): Promise<boolean | null>;
 }

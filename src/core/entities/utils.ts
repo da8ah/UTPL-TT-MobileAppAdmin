@@ -1,3 +1,4 @@
+import Admin from "./Admin";
 import CardTransaction from "./CardTransaction";
 import Cart from "./Cart";
 import StockBook from "./StockBook";
@@ -173,6 +174,29 @@ export class Cloner {
 	}
 }
 
+export class UserInputValidator {
+	public static validateNewStockBook(book: StockBook): boolean {
+		console.log(new RegExp(/(d{10}|d{13})/).exec(book.getIsbn() || ""));
+
+		// if (new RegExp(/(d{10}|d{13})/).test(book.getIsbn() || "")) return false;
+		// if (new RegExp(/^[https://]\w+(.png|.jpg)$/).test(book.getImgRef() || "")) return false;
+		// if (new RegExp("w+").test(book.getTitle() || "")) return false;
+		// if (new RegExp("w+").test(book.getAuthor() || "")) return false;
+		// if (new RegExp("d{2}/d{2}/d{4}").test(book.getReleaseDate() || "")) return false;
+		// if (new RegExp("d{,3}.d{2}").test(book.getGrossPricePerUnit()?.toString() || "")) return false;
+		// if (typeof book.isInOffer() !== "boolean") return false;
+		// if (new RegExp("d{,3}").test(book.getDiscountPercentage()?.toString() || "")) return false;
+		// if (typeof book.itHasIva() !== "boolean") return false;
+		// if (new RegExp("d{2}/d{2}/d{4}").test(book.getCreatedDate() || "")) return false;
+		// if (new RegExp("w+").test(book.getDescription() || "")) return false;
+		// if (new RegExp("(d{,4}").test(book.getStock()?.toString() || "")) return false;
+		// if (typeof book.isVisible() !== "boolean") return false;
+		// if (typeof book.isRecommended() !== "boolean") return false;
+		// if (typeof book.isBestSeller() !== "boolean") return false;
+		// if (typeof book.isRecent() !== "boolean") return false;
+		return true;
+	}
+}
 // export class ClientConverter {
 // 	private static billingInfoToJSON(billingInfo: BillingInfo): JSON {
 // 		let json: any = {};
@@ -486,25 +510,25 @@ export class TransactionConverter {
 	// 	}
 }
 
-// export class AdminConverter {
-// 	public static adminToJSON(admin: Admin): JSON {
-// 		let json: any = {};
-// 		if (admin.getUser() != undefined) json["user"] = admin.getUser();
-// 		if (admin.getName() != undefined) json["name"] = admin.getName();
-// 		if (admin.getEmail() != undefined) json["email"] = admin.getEmail();
-// 		if (admin.getMobile() != undefined) json["mobile"] = admin.getMobile();
-// 		if (admin.getPassword() != undefined) json["password"] = admin.getPassword();
-// 		return json;
-// 	}
+export class AdminConverter {
+	// 		public static adminToJSON(admin: Admin): JSON {
+	// 			// rome-ignore lint/suspicious/noExplicitAny: <explanation>
+	// let  json: any = {};
+	// 			if (admin.getUser() !== undefined) json["user"] = admin.getUser();
+	// 			if (admin.getName() !== undefined) json["name"] = admin.getName();
+	// 			if (admin.getEmail() !== undefined) json["email"] = admin.getEmail();
+	// 			if (admin.getMobile() !== undefined) json["mobile"] = admin.getMobile();
+	// 			if (admin.getPassword() !== undefined) json["password"] = admin.getPassword();
+	// 			return json;
+	// 		}
+	public static jsonToAdmin(req: { user: string; name: string; email: string; mobile: string; password: string }): Admin {
+		const { user, name, email, mobile, password } = req;
 
-// 	public static jsonToAdmin(req: Request): Admin {
-// 		const { user, name, email, mobile, password } = req.body;
+		const admin = new Admin(user, name, email, mobile, password);
 
-// 		const admin = new Admin(user, name, email, mobile, password);
-
-// 		return admin;
-// 	}
-
+		return admin;
+	}
+}
 // 	public static modelToAdmin(adminModel: IAdminModel): Admin {
 // 		const admin = new Admin(adminModel.user, adminModel.name, adminModel.email, adminModel.mobile, adminModel.password);
 // 		return admin;

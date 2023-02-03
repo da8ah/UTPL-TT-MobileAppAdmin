@@ -19,9 +19,9 @@ const StockBookCardStatus = (props: { isRecommended?: boolean; isBestSeller?: bo
 	return (
 		<Layout style={styles.cardStatus}>
 			<Layout style={styles.icons}>
-				<Icon name="checkmark-circle-2" fill={!props.isRecommended ? "darkgray" : "darkgreen"} height="30" width="30" />
+				<Icon name="checkmark-circle-2" fill={!props.isRecommended ? "darkgray" : "greenyellow"} height="30" width="30" />
 				<Icon name="star" fill={!props.isBestSeller ? "darkgray" : "gold"} height="30" width="30" />
-				<Icon name="clock" fill={!props.isRecent ? "darkgray" : "darkred"} height="30" width="30" />
+				<Icon name="clock" fill={!props.isRecent ? "darkgray" : "tomato"} height="30" width="30" />
 			</Layout>
 			<Layout style={styles.imageLayout}>
 				<Image style={styles.image} source={require("../../../../assets/bookstore.png")} />

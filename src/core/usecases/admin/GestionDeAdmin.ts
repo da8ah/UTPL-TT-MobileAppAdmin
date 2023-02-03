@@ -1,33 +1,41 @@
-import { AdminConverter } from "../../../services/app/utils";
+import config from "../../config";
+import AbstractRepository from "../../data/AbstractRepository";
+import LocalSecureStorage from "../../data/LocalSecureStorage";
+import { ServerDataSource } from "../../data/ServerDataSource";
+import PersistenciaDeAdmin from "../../data/strategies/PersistenciaDeAdmin";
 import Admin from "../../entities/Admin";
-import IPersistenciaCuenta from "../../ports/persistencia/IPersistenciaCuenta";
-import IGestionDeCuentas from "../IGestionDeAutenticacion";
-import IGestionDeAutenticacion from "../IGestionDeAutenticacion";
 
-export default class GestionDeAdmin implements IGestionDeAutenticacion, IGestionDeCuentas {
+export default class GestionDeAdmin {
+	public async crearCuenta(admin: Admin, repository: AbstractRepository): Promise<boolean | null> {
+		throw new Error("Method not implemented.");
+	}
 
-    public async crearCuenta(admin: Admin, iPersistenciaCuenta: IPersistenciaCuenta): Promise<Admin> {
-        const clientFound = await iPersistenciaCuenta.buscarCuenta(new Admin(admin.getUser()));
-        if (clientFound.getUser()) return admin;
-        return await iPersistenciaCuenta.guardarCuentaNueva(admin) as Admin;
-    }
+	public static async iniciarSesion(admin: Admin, repository: AbstractRepository): Promise<Admin | null> {
+		try {
+			const secureStorage = LocalSecureStorage;
+			const token = (await secureStorage?.readData({ key: config.LSS.AUTH_KEY })) || null;
+			const data = { token, admin };
+			const repo = repository as ServerDataSource;
+			repo.setStrategy(new PersistenciaDeAdmin());
+			const resultado = <{ token: string | null; admin: Admin | null }>await repo.readData(data);
+			if (!resultado.token && resultado.admin) return resultado.admin;
+			if (resultado.token) {
+				const secureStorage = LocalSecureStorage;
+				const tokenSavedConfirmation = await secureStorage?.createData({ key: config.LSS.AUTH_KEY, value: resultado.token });
+				console.log(tokenSavedConfirmation);
+			}
+			return resultado.admin ? resultado.admin : null;
+		} catch (error) {
+			console.error(error);
+			return null;
+		}
+	}
 
-    public async iniciarSesion(admin: Admin, iPersistenciaCuenta: IPersistenciaCuenta): Promise<Admin> {
-        const adminFound = AdminConverter.adminToModel(await iPersistenciaCuenta.buscarCuenta(admin) as Admin);
-        const password = admin.getPassword();
-        if (password != undefined) {
-            const auth = await adminFound.comparePassword(password);
-            if (auth) return AdminConverter.modelToAdmin(adminFound);
-        }
-        return new Admin();
-    }
+	public async actualizarCuenta(adminToSearch: Admin, adminToUpdate: Admin, repository: AbstractRepository): Promise<boolean | null> {
+		throw new Error("Method not implemented.");
+	}
 
-    public async actualizarCuenta(adminToSearch: Admin, adminToUpdate: Admin, iPersistenciaCuenta: IPersistenciaCuenta): Promise<Admin> {
-        return await iPersistenciaCuenta.actualizarCuenta(adminToSearch, adminToUpdate) as Admin;
-    }
-
-    public async eliminarCuenta(admin: Admin, iPersistenciaCuenta: IPersistenciaCuenta): Promise<Admin> {
-        return await iPersistenciaCuenta.eliminarCuenta(admin) as Admin;
-    }
-
+	public async eliminarCuenta(admin: Admin, repository: AbstractRepository): Promise<boolean | null> {
+		throw new Error("Method not implemented.");
+	}
 }
