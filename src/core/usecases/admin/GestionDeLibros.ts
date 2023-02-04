@@ -12,6 +12,14 @@ export default class GestionDeLibros {
 		return confirmation;
 	}
 
+	public static async listarCatalogoDeLibrosEnStock(repository: AbstractRepository): Promise<StockBook[] | null> {
+		const repo = repository as ServerDataSource;
+		repo.setStrategy(new PersistenciaDeLibros());
+		const data = <StockBook[]>await repo.readData();
+		if (!data) return null;
+		return data;
+	}
+
 	// Two StockBooks required in case of ISBN update
 	public static async actualizarLibro(bookToSearch: StockBook, bookToUpdate: StockBook, repository: AbstractRepository): Promise<boolean | null> {
 		const repo = repository as ServerDataSource;

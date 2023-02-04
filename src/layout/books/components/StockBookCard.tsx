@@ -8,7 +8,11 @@ const StockBookCardHeader = (props: { isVisible?: boolean; isInOffer?: boolean; 
 	return (
 		<Layout style={[styles.common, styles.cardHeader]}>
 			{/* <Layout style={{ marginLeft: 1 }}> */}
-			{props.isVisible ? <Icon name="eye" fill="black" height="30" width="30" /> : <Icon name="eye-off" fill="darkgray" height="25" width="25" />}
+			{props.isVisible ? (
+				<Icon name="eye" fill="dodgerblue" height="30" width="30" />
+			) : (
+				<Icon name="eye-off" fill="darkgray" height="25" width="25" />
+			)}
 			{/* </Layout> */}
 			<Text style={{ color: "red", fontStyle: "italic" }}>{props.isInOffer ? `-${props.discountPercentage}%` : ""}</Text>
 		</Layout>

@@ -4,12 +4,10 @@ import { AdminConverter } from "../../entities/utils";
 import IStrategy from "./IStrategy";
 
 export default class PersistenciaDeAdmin implements IStrategy {
-	private apiURL: string | null = config.URL.REPOSITORY;
-	private apiAdmin: string | null = null;
+	private apiURL: string | null = null;
 
 	public setApiURL(apiURL: string): void {
 		this.apiURL = apiURL;
-		this.apiAdmin = `${this.apiURL}/admin`;
 	}
 
 	public createData(admin: Admin): Promise<boolean | null> {
@@ -17,7 +15,7 @@ export default class PersistenciaDeAdmin implements IStrategy {
 	}
 
 	public async readData(data: { token: string; admin: Admin }): Promise<{ token: string | null; admin: Admin | null } | null> {
-		if (!this.apiAdmin) return null;
+		if (!this.apiURL) return null;
 
 		try {
 			let token = null;
@@ -31,7 +29,7 @@ export default class PersistenciaDeAdmin implements IStrategy {
 						Authorization: data.token,
 					},
 				};
-				await fetch(`${this.apiAdmin}/login`, httpContent)
+				await fetch(`${this.apiURL}/login`, httpContent)
 					.then((res) => res.json())
 					.then((body) => (admin = AdminConverter.jsonToAdmin(body)));
 				return { token: null, admin };
@@ -46,7 +44,7 @@ export default class PersistenciaDeAdmin implements IStrategy {
 					},
 					body: JSON.stringify({ user: data.admin.getUser(), password: data.admin.getPassword() }),
 				};
-				await fetch(`${this.apiAdmin}/login`, httpContent)
+				await fetch(`${this.apiURL}/login`, httpContent)
 					.then((res) => {
 						token = res.headers.get("set-cookie")?.split(";")[0].split("=")[1];
 						return res.json();

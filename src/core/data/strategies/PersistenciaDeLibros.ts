@@ -5,15 +5,13 @@ import IStrategy from "./IStrategy";
 
 export default class PersistenciaDeLibros implements IStrategy {
 	private apiURL: string | null = null;
-	private apiAdminBooks: string | null = null;
 
 	public setApiURL(apiURL: string): void {
-		this.apiURL = apiURL;
-		this.apiAdminBooks = `${this.apiURL}/admin/books`;
+		this.apiURL = `${apiURL}/books`;
 	}
 
 	public async createData(stockBook: StockBook): Promise<boolean | null> {
-		if (!this.apiAdminBooks) return null;
+		if (!this.apiURL) return null;
 
 		try {
 			const httpContent = {
@@ -24,7 +22,7 @@ export default class PersistenciaDeLibros implements IStrategy {
 				},
 				body: JSON.stringify(stockBook),
 			};
-			return await fetch(this.apiAdminBooks, httpContent).then((res) => res.ok);
+			return await fetch(this.apiURL, httpContent).then((res) => res.ok);
 		} catch (error) {
 			console.error(error);
 			return false;
@@ -34,7 +32,13 @@ export default class PersistenciaDeLibros implements IStrategy {
 		if (!this.apiURL) return null;
 
 		try {
-			let data: StockBook[] = await fetch(`${this.apiURL}/books`)
+			const httpContent = {
+				method: "GET",
+				headers: {
+					Authorization: adminViMo.getJWT() || "",
+				},
+			};
+			let data: StockBook[] = await fetch(this.apiURL, httpContent)
 				.then((res) => res.json())
 				.then((data) => data.map((item: IStockBook) => BookConverter.jsonToBook(item)));
 
@@ -45,7 +49,7 @@ export default class PersistenciaDeLibros implements IStrategy {
 		}
 	}
 	public async updateData(bookToSearch: StockBook, bookToUpdate: StockBook): Promise<boolean | null> {
-		if (!this.apiAdminBooks) return null;
+		if (!this.apiURL) return null;
 
 		try {
 			const httpContent = {
@@ -56,14 +60,14 @@ export default class PersistenciaDeLibros implements IStrategy {
 				},
 				body: JSON.stringify(bookToUpdate),
 			};
-			return await fetch(`${this.apiAdminBooks}/${bookToSearch.getIsbn()}`, httpContent).then((res) => res.ok);
+			return await fetch(`${this.apiURL}/${bookToSearch.getIsbn()}`, httpContent).then((res) => res.ok);
 		} catch (error) {
 			console.error(error);
 			return false;
 		}
 	}
 	public async deleteData(stockBook: StockBook): Promise<boolean | null> {
-		if (!this.apiAdminBooks) return null;
+		if (!this.apiURL) return null;
 
 		try {
 			const httpContent = {
@@ -72,7 +76,7 @@ export default class PersistenciaDeLibros implements IStrategy {
 					Authorization: adminViMo.getJWT() || "",
 				},
 			};
-			return await fetch(`${this.apiAdminBooks}/${stockBook.getIsbn()}`, httpContent).then((res) => res.ok);
+			return await fetch(`${this.apiURL}/${stockBook.getIsbn()}`, httpContent).then((res) => res.ok);
 		} catch (error) {
 			console.error(error);
 			return false;

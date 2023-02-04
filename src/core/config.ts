@@ -2,7 +2,7 @@ const serverURL = "https://expressjs-bookstore.azurewebsites.net";
 
 const config = {
 	URL: {
-		REPOSITORY: `${serverURL}/api`,
+		REPOSITORY: `${serverURL}/api/admin`,
 	},
 	LSS: {
 		AUTH_KEY: "authTokenSaved",

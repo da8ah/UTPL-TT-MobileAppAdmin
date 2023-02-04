@@ -21,9 +21,9 @@ export default class GestionDeAdmin {
 			const repo = repository as ServerDataSource;
 			repo.setStrategy(new PersistenciaDeAdmin());
 			const resultado = <{ token: string | null; admin: Admin | null }>await repo.readData(data);
-			if (!resultado.token && resultado.admin) return { token: token || null, admin: resultado.admin };
-			if (resultado.token) await secureStorage?.createData({ key: config.LSS.AUTH_KEY, value: resultado.token });
-			return resultado.token && resultado.admin ? { token: resultado.token, admin: resultado.admin } : null;
+			if (!resultado?.token && resultado?.admin) return { token: token || null, admin: resultado.admin };
+			if (resultado?.token) await secureStorage?.createData({ key: config.LSS.AUTH_KEY, value: resultado.token });
+			return resultado?.token && resultado?.admin ? { token: resultado.token, admin: resultado.admin } : null;
 		} catch (error) {
 			console.error(error);
 			return null;

@@ -7,7 +7,7 @@ export default class PersistenciaDeTransacciones implements IStrategy {
 	private apiURL: string | null = null;
 
 	public setApiURL(apiURL: string): void {
-		this.apiURL = `${apiURL}/admin/transactions`;
+		this.apiURL = `${apiURL}/transactions`;
 	}
 
 	public async createData(cardTransaction: CardTransaction): Promise<boolean | null> {

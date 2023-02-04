@@ -315,9 +315,9 @@ const BookMiddle = (props: {
 						}}
 					>
 						{!props.isEditionActive ? (
-							<Icon name={visible ? "eye-outline" : "eye-off-outline"} fill={visible ? "black" : "darkgray"} height="35" width="35" />
+							<Icon name={visible ? "eye-outline" : "eye-off-outline"} fill={visible ? "turquoise" : "darkgray"} height="35" width="35" />
 						) : (
-							<Icon name={visible ? "eye" : "eye-off"} fill={visible ? "black" : "darkgray"} height="35" width="35" />
+							<Icon name={visible ? "eye" : "eye-off"} fill={visible ? "turquoise" : "darkgray"} height="35" width="35" />
 						)}
 					</TouchableOpacity>
 				</Layout>

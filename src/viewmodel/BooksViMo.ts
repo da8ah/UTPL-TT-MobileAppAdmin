@@ -1,7 +1,7 @@
 import AbstractRepository from "../core/data/AbstractRepository";
 import ServerDataSource from "../core/data/ServerDataSource";
 import StockBook from "../core/entities/StockBook";
-import GestionDeInicio from "../core/usecases/GestionDeInicio";
+import GestionDeLibros from "../core/usecases/admin/GestionDeLibros";
 
 export type BooksObserver = (books: StockBook[]) => void;
 
@@ -25,7 +25,7 @@ export class BooksViMo {
 
 	public async getDataFromServer() {
 		let retrievedBooks = null;
-		if (this.repository) retrievedBooks = await GestionDeInicio.listarCatalogoDeLibros(this.repository);
+		if (this.repository) retrievedBooks = await GestionDeLibros.listarCatalogoDeLibrosEnStock(this.repository);
 		if (retrievedBooks) this.books = retrievedBooks;
 	}
 
