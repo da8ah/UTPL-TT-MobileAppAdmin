@@ -32,6 +32,7 @@ class NewStockBookViMo {
 	}
 
 	public updateDraftDate(date: Date) {
+		if (!date) date = new Date();
 		this.stockBookDraft.setReleaseDate(
 			Intl.DateTimeFormat("es-ec", {
 				year: "numeric",

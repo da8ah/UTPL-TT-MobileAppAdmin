@@ -10,7 +10,7 @@ export default class GestionDeAdmin {
 		throw new Error("Method not implemented.");
 	}
 
-	public static async iniciarSesion(admin: Admin, repository: AbstractRepository): Promise<Admin | null> {
+	public static async iniciarSesion(admin: Admin, repository: AbstractRepository): Promise<{ token: string | null; admin: Admin | null } | null> {
 		try {
 			const secureStorage = LocalSecureStorage;
 			let token = null;
@@ -21,9 +21,9 @@ export default class GestionDeAdmin {
 			const repo = repository as ServerDataSource;
 			repo.setStrategy(new PersistenciaDeAdmin());
 			const resultado = <{ token: string | null; admin: Admin | null }>await repo.readData(data);
-			if (!resultado.token && resultado.admin) return resultado.admin;
+			if (!resultado.token && resultado.admin) return { token: token || null, admin: resultado.admin };
 			if (resultado.token) await secureStorage?.createData({ key: config.LSS.AUTH_KEY, value: resultado.token });
-			return resultado.admin ? resultado.admin : null;
+			return resultado.token && resultado.admin ? { token: resultado.token, admin: resultado.admin } : null;
 		} catch (error) {
 			console.error(error);
 			return null;

@@ -1,3 +1,4 @@
+import adminViMo from "../../../viewmodel/AdminViMo";
 import StockBook from "../../entities/StockBook";
 import { BookConverter, IStockBook } from "../../entities/utils";
 import IStrategy from "./IStrategy";
@@ -15,14 +16,15 @@ export default class PersistenciaDeLibros implements IStrategy {
 		if (!this.apiAdminBooks) return null;
 
 		try {
-			const bodyContent = {
+			const httpContent = {
 				method: "POST",
 				headers: {
+					Authorization: adminViMo.getJWT() || "",
 					"Content-Type": "application/json",
 				},
 				body: JSON.stringify(stockBook),
 			};
-			return await fetch(this.apiAdminBooks, bodyContent).then((res) => res.ok);
+			return await fetch(this.apiAdminBooks, httpContent).then((res) => res.ok);
 		} catch (error) {
 			console.error(error);
 			return false;
@@ -46,14 +48,15 @@ export default class PersistenciaDeLibros implements IStrategy {
 		if (!this.apiAdminBooks) return null;
 
 		try {
-			const bodyContent = {
+			const httpContent = {
 				method: "PUT",
 				headers: {
+					Authorization: adminViMo.getJWT() || "",
 					"Content-Type": "application/json",
 				},
 				body: JSON.stringify(bookToUpdate),
 			};
-			return await fetch(`${this.apiAdminBooks}/${bookToSearch.getIsbn()}`, bodyContent).then((res) => res.ok);
+			return await fetch(`${this.apiAdminBooks}/${bookToSearch.getIsbn()}`, httpContent).then((res) => res.ok);
 		} catch (error) {
 			console.error(error);
 			return false;
@@ -63,10 +66,13 @@ export default class PersistenciaDeLibros implements IStrategy {
 		if (!this.apiAdminBooks) return null;
 
 		try {
-			const bodyContent = {
+			const httpContent = {
 				method: "DELETE",
+				headers: {
+					Authorization: adminViMo.getJWT() || "",
+				},
 			};
-			return await fetch(`${this.apiAdminBooks}/${stockBook.getIsbn()}`, bodyContent).then((res) => res.ok);
+			return await fetch(`${this.apiAdminBooks}/${stockBook.getIsbn()}`, httpContent).then((res) => res.ok);
 		} catch (error) {
 			console.error(error);
 			return false;

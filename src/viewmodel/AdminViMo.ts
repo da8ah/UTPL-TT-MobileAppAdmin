@@ -10,6 +10,11 @@ class AdminViMo {
 	private observer: AdminObserver | null = null;
 	private repository: AbstractRepository | null = ServerDataSource;
 	private admin: Admin = new Admin();
+	private jwt: string | null = null;
+
+	public getJWT() {
+		return this.jwt;
+	}
 
 	public getAdmin(): Admin {
 		return this.admin;
@@ -23,9 +28,10 @@ class AdminViMo {
 	}
 
 	public async login(adminToSearch?: Admin) {
-		let adminFound;
-		if (this.repository) adminFound = await GestionDeAdmin.iniciarSesion(adminToSearch || new Admin(), this.repository);
-		if (adminFound) this.admin = adminFound;
+		let credenciales;
+		if (this.repository) credenciales = await GestionDeAdmin.iniciarSesion(adminToSearch || new Admin(), this.repository);
+		if (credenciales?.token) this.jwt = credenciales.token;
+		if (credenciales?.admin) this.admin = credenciales.admin;
 	}
 
 	public async logout() {

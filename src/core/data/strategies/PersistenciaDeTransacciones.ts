@@ -1,3 +1,4 @@
+import adminViMo from "../../../viewmodel/AdminViMo";
 import CardTransaction from "../../entities/CardTransaction";
 import { ICardTransaction, TransactionConverter } from "../../entities/utils";
 import IStrategy from "./IStrategy";
@@ -22,7 +23,13 @@ export default class PersistenciaDeTransacciones implements IStrategy {
 		if (!this.apiURL) return null;
 
 		try {
-			let data: CardTransaction[] = await fetch(`${this.apiURL}`)
+			const httpContent = {
+				method: "GET",
+				headers: {
+					Authorization: adminViMo.getJWT() || "",
+				},
+			};
+			let data: CardTransaction[] = await fetch(`${this.apiURL}`, httpContent)
 				.then((res) => res.json())
 				.then((data) => data.map((item: ICardTransaction) => TransactionConverter.jsonToBook(item)));
 

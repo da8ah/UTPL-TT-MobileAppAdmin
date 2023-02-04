@@ -46,7 +46,7 @@ const toDate = function (date?: string) {
 			const dateSplitted = date?.split("/");
 			if (dateSplitted !== undefined) {
 				if (dateSplitted.length === 3) {
-					let newDate = new Date(1900, 0, 1);
+					let newDate = new Date();
 					newDate = new Date(Number.parseInt(dateSplitted[2]), Number.parseInt(dateSplitted[1]) - 1, Number.parseInt(dateSplitted[0]));
 					return newDate;
 				} else if (dateSplitted.length === 1) {
@@ -54,10 +54,10 @@ const toDate = function (date?: string) {
 				}
 			}
 		}
-		return new Date(1900, 0, 1);
+		return new Date();
 	} catch (error) {
 		console.log(error);
-		return new Date(1900, 0, 1);
+		return new Date();
 	}
 };
 
@@ -609,7 +609,8 @@ const BookBottom = (props: { book: StockBook; isEditionActive: boolean }) => {
 	const [modalChildren, setModalChildren] = useState<JSX.Element>();
 	const [description, setDescription] = useState(props.book.getDescription());
 	const createdDate = props.book.getCreatedDate();
-	const dateSplitted = createdDate?.split("T")[0].split("-");
+	let dateSplitted;
+	if (dateSplitted !== undefined) dateSplitted = createdDate?.split("T")[0].split("-");
 
 	useEffect(() => {
 		setDescription(props.book.getDescription());
@@ -770,6 +771,9 @@ const NewStockBookScreen = () => {
 	useEffect(() => {}, [book]);
 
 	useEffect(() => {
+		const date = new Date().toLocaleDateString().split("/");
+		book.setReleaseDate(`${date[0]}/${date[1]}/${date[2]}`);
+		book.setDiscountPercentage(0);
 		book.setVisible(false);
 		book.setRecommended(false);
 		book.setBestSeller(false);

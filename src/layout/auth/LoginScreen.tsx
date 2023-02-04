@@ -18,7 +18,7 @@ const LoginScreenHeader = () => (
 
 // rome-ignore lint/suspicious/noExplicitAny: <explanation>
 const InputWithPassword = (props: { setPassword: any }) => {
-	const [inputValue, setInputValue] = useState("");
+	const [inputValue, setInputValue] = useState<string>();
 	const [secureTextEntry, setSecureTextEntry] = useState(true);
 
 	const togglePasswordVisibility = () => {
@@ -33,6 +33,8 @@ const InputWithPassword = (props: { setPassword: any }) => {
 
 	return (
 		<Input
+			disabled={true}
+			defaultValue={"tiber"} // HardCoded Value
 			selectionColor='black'
 			textContentType="password"
 			style={styles.input}
@@ -50,8 +52,9 @@ const InputWithPassword = (props: { setPassword: any }) => {
 const ButtonIcon = () => <Icon name="log-in" fill="white" height="20" width="20" />;
 // rome-ignore lint/suspicious/noExplicitAny: <explanation>
 const LoginScreenBody = (props: { setAuth: any }) => {
-	const [user, setUser] = useState<string>();
-	const [password, setPassword] = useState<string>();
+	// HardCoded Values
+	const [user, setUser] = useState<string>("tiber");
+	const [password, setPassword] = useState<string>("tiber");
 
 	return (
 		<Layout style={[styles.common, styles.body]}>
@@ -64,7 +67,8 @@ const LoginScreenBody = (props: { setAuth: any }) => {
 					<Layout style={[styles.inputTitle, { borderTopLeftRadius: 10 }]}>
 						<Text adjustsFontSizeToFit>USUARIO</Text>
 					</Layout>
-					<Input selectionColor='black' style={styles.input} onChangeText={(newUser) => setUser(newUser)} />
+					{/* HardCoded Value */}
+					<Input disabled={true} defaultValue={"tiber"} selectionColor='black' style={styles.input} onChangeText={(newUser) => setUser(newUser)} />
 				</Layout>
 				<Layout style={styles.inputLayout}>
 					<Layout style={[styles.inputTitle, { borderBottomLeftRadius: 10 }]}>
