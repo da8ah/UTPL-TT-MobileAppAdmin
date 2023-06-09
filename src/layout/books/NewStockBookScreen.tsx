@@ -626,7 +626,7 @@ const BookBottom = (props: { book: StockBook; isEditionActive: boolean }) => {
 					multiline
 					disabled={!props.isEditionActive}
 					value={description}
-					textStyle={{ height: 100 }}
+					textStyle={{ height: 50 }}
 					style={[
 						styles.input,
 						{
@@ -811,7 +811,7 @@ const styles = StyleSheet.create({
 	body: { flex: 9, width: "100%" },
 	bodyTop: { zIndex: 1, flex: 6, backgroundColor: transparent, padding: 5 },
 	bodyMiddle: { zIndex: 0, flex: 3, backgroundColor: transparent, padding: 5 },
-	bodyBottom: { zIndex: 1, flex: 6, backgroundColor: transparent, justifyContent: "space-around", padding: 5 },
+	bodyBottom: { zIndex: 1, flex: 5, backgroundColor: transparent, justifyContent: "space-around", padding: 5 },
 	topLeftPanel: {
 		backgroundColor: "gainsboro",
 		width: "35%",

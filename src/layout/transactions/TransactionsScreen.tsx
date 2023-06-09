@@ -25,7 +25,7 @@ const TransactionsLayout = () => {
 		setRefreshing(true);
 		setTimeout(async () => {
 			await transactionsViMo.getDataFromServer();
-			setTransactions(transactionsViMo.getTransactionsStored());
+			setTransactions(transactionsViMo.getTransactionsStored().reverse());
 			setRefreshing(false);
 		}, 2000);
 	};

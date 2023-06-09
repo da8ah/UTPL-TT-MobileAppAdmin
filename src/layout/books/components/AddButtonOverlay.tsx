@@ -9,7 +9,7 @@ const AddButtonOverlay = () => {
 
 	return (
 		<TouchableOpacity
-			style={{ backgroundColor: "transparent", position: "absolute", alignSelf: "flex-end", top: 570, right: 10, width: 70, height: 70 }}
+			style={{ backgroundColor: "transparent", position: "absolute", alignSelf: "flex-end", top: 530, right: 10, width: 70, height: 70 }}
 			onPress={() => navigation.navigate("NewStockBook")}
 		>
 			<Icon name="plus-circle" fill="black" height="70" width="70" />
