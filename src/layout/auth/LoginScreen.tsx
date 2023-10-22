@@ -68,7 +68,13 @@ const LoginScreenBody = (props: { setAuth: any }) => {
 						<Text adjustsFontSizeToFit>USUARIO</Text>
 					</Layout>
 					{/* HardCoded Value */}
-					<Input disabled={true} defaultValue={"tiber"} selectionColor='black' style={styles.input} onChangeText={(newUser) => setUser(newUser)} />
+					<Input
+						disabled={true}
+						defaultValue={"tiber"}
+						selectionColor='black'
+						style={styles.input}
+						onChangeText={(newUser) => setUser(newUser)}
+					/>
 				</Layout>
 				<Layout style={styles.inputLayout}>
 					<Layout style={[styles.inputTitle, { borderBottomLeftRadius: 10 }]}>
